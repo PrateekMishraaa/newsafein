@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunksafeinschool_client=self.webpackChunksafeinschool_client||[]).push([[3370],{73370:(e,s,c)=>{c.r(s),c.d(s,{default:()=>l});c(65043);var n=c(70579);const l=()=>(0,n.jsx)("div",{children:"Partner"})}}]);
+//# sourceMappingURL=3370.7d8b812a.chunk.js.map

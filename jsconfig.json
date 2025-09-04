@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@public/*": ["public/*"]
+    }
+  },
+  "include": [
+    "src",
+    "../InstituteDataTable.jsx",
+    "../AdminLogin.jsx",
+    "../Admin.jsx"
+  ]
+}

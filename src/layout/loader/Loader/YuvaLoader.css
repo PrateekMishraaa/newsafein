@@ -1,0 +1,40 @@
+.yloader {
+    text-align: center;
+    height: 100%;
+  }
+  
+  .yloader-logo {
+    height: 15vmin;
+    pointer-events: none;
+  }
+  
+  @media (prefers-reduced-motion: no-preference) {
+    .yloader-logo {
+      animation: ymg20-loader-spin infinite 3s linear;
+    }
+  }
+  
+  .yloader-header {
+    background-color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+  }
+  
+  .yloader-link {
+    color: #61dafb;
+  }
+  
+  @keyframes ymg20-loader-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  

@@ -1,0 +1,15 @@
+.messages-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.message-item-container {
+  margin-top: 5px;
+  width: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.chat-room-container .input-area {
+  background-color: #f1f1f1;
+}

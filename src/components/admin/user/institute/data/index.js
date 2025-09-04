@@ -1,0 +1,6 @@
+export * from "./AdminInstituteStudents"
+export * from "./AdminStudentRegistration"
+export * from "./CertificateData"
+export * from "./DoughnutInstitute"
+export * from "./StudentBulkLoginAdmin"
+export * from "./AdminInstituteGallery"
