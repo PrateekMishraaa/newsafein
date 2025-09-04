@@ -2095,7 +2095,7 @@ const handleBooking = () => {
       alignItems: "center",
       gap: "8px",
       padding: "10px 20px",
-      background: "linear-gradient(90deg, #22c55e, #059669)", // gradient green
+      background: "linear-gradient(90deg, #f27f22, #f27f22)", // gradient green
       color: "white",
       fontWeight: "600",
       border: "none",
@@ -2106,11 +2106,11 @@ const handleBooking = () => {
     }}
     onMouseOver={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #16a34a, #047857)")
+        "linear-gradient(90deg, #f27f22, #f27f22)")
     }
     onMouseOut={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #22c55e, #059669)")
+        "linear-gradient(90deg, #f27f22, #f27f22)")
     }
     onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
     onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
@@ -2194,7 +2194,7 @@ const handleBooking = () => {
       alignItems: "center",
       gap: "8px",
       padding: "10px 20px",
-      background: "linear-gradient(90deg, #22c55e, #059669)", // gradient green
+      background: "linear-gradient(90deg, #f27f22, #f27f22)", // gradient green
       color: "white",
       fontWeight: "600",
       fontSize: "14px",
@@ -2204,13 +2204,13 @@ const handleBooking = () => {
       cursor: "pointer",
       transition: "all 0.3s ease-in-out",
     }}
-    onMouseOver={(e) =>
+  onMouseOver={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #16a34a, #047857)")
+        "linear-gradient(90deg, #f27f22, #f27f22)")
     }
     onMouseOut={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #22c55e, #059669)")
+        "linear-gradient(90deg, #f27f22, #f27f22)")
     }
     onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
     onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
@@ -2306,7 +2306,7 @@ const handleBooking = () => {
       alignItems: "center",
       gap: "8px",
       padding: "10px 20px",
-      background: "linear-gradient(90deg, #22c55e, #059669)", // green gradient
+      background: "linear-gradient(90deg, #f27f22, #f27f22)", // green gradient
       color: "white",
       fontWeight: "600",
       fontSize: "14px",
@@ -2316,13 +2316,13 @@ const handleBooking = () => {
       cursor: "pointer",
       transition: "all 0.3s ease-in-out",
     }}
-    onMouseOver={(e) =>
+  onMouseOver={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #16a34a, #047857)")
+        "linear-gradient(90deg, #f27f22, #f27f22)")
     }
     onMouseOut={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #22c55e, #059669)")
+        "linear-gradient(90deg, #f27f22, #f27f22)")
     }
     onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
     onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
@@ -2400,7 +2400,7 @@ const handleBooking = () => {
         alignItems: "center",
         gap: "8px",
         padding: "10px 20px",
-        background: "linear-gradient(90deg, #22c55e, #059669)", // green gradient
+        background: "linear-gradient(90deg, #f27f22, #f27f22)", // green gradient
         color: "white",
         fontWeight: "600",
         fontSize: "14px",
@@ -2410,14 +2410,14 @@ const handleBooking = () => {
         cursor: "pointer",
         transition: "all 0.3s ease-in-out",
       }}
-      onMouseOver={(e) =>
-        (e.currentTarget.style.background =
-          "linear-gradient(90deg, #16a34a, #047857)")
-      }
-      onMouseOut={(e) =>
-        (e.currentTarget.style.background =
-          "linear-gradient(90deg, #22c55e, #059669)")
-      }
+     onMouseOver={(e) =>
+      (e.currentTarget.style.background =
+        "linear-gradient(90deg, #f27f22, #f27f22)")
+    }
+    onMouseOut={(e) =>
+      (e.currentTarget.style.background =
+        "linear-gradient(90deg, #f27f22, #f27f22)")
+    }
       onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
       onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
     >
@@ -2512,7 +2512,7 @@ const handleBooking = () => {
     {`
       .view-btn {
         padding: 10px 20px;
-        background: linear-gradient(135deg, #38a169, #48bb78);
+        background: linear-gradient(135deg, #f27f22, #f27f22);
         color: white;
         font-weight: 600;
         border: none;
@@ -2522,7 +2522,7 @@ const handleBooking = () => {
         box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
       }
       .view-btn:hover {
-        background: linear-gradient(135deg, #2f855a, #38a169);
+        background: linear-gradient(135deg, #f27f22, #f27f22);
         transform: scale(1.05);
         box-shadow: 0px 6px 12px rgba(0,0,0,0.25);
       }
@@ -2605,7 +2605,7 @@ const handleBooking = () => {
     {`
       .view-btn {
         padding: 10px 20px;
-        background: linear-gradient(135deg, #38a169, #48bb78);
+        background: linear-gradient(135deg, #f27f22, #f27f22);
         color: white;
         font-weight: 600;
         border: none;
@@ -2615,7 +2615,7 @@ const handleBooking = () => {
         box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
       }
       .view-btn:hover {
-        background: linear-gradient(135deg, #2f855a, #38a169);
+        background: linear-gradient(135deg, #f27f22, #f27f22);
         transform: scale(1.05);
         box-shadow: 0px 6px 12px rgba(0,0,0,0.25);
       }
@@ -2633,6 +2633,7 @@ const handleBooking = () => {
         )
       }
       className="view-btn"
+      style={{backgroundColor:"#f27f22"}}
     >
       View Image
     </button>
@@ -2718,7 +2719,7 @@ const handleBooking = () => {
     {`
       .view-btn {
         padding: 10px 20px;
-        background: linear-gradient(135deg, #38a169, #48bb78);
+        background: linear-gradient(135deg, #f27f22, #f27f22);
         color: white;
         font-weight: 600;
         border: none;
@@ -2728,7 +2729,7 @@ const handleBooking = () => {
         box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
       }
       .view-btn:hover {
-        background: linear-gradient(135deg, #2f855a, #38a169);
+        background: linear-gradient(135deg, #f27f22, #f27f22);
         transform: scale(1.05);
         box-shadow: 0px 6px 12px rgba(0,0,0,0.25);
       }
