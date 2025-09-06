@@ -19,11 +19,15 @@ import { Formik, Form, Field } from "formik";
 import { IoIosInformationCircle } from "react-icons/io";
 import * as Yup from "yup";
 import 'react-toastify/dist/ReactToastify.css';
+import { DevicesOther, Healing, LocalActivity } from '@mui/icons-material';
+import content from 'pages/static/News/content';
 const SSPFORM = () => {
+    const [currentStep, setCurrentStep] = useState(0);
   const [openSection, setOpenSection] = useState(null);
 const [sectionIndexes, setSectionIndexes] = useState({});
  const [currentSection, setCurrentSection] = useState(null);
 const [currentIndex, setCurrentIndex] = useState(0);
+const [errors,setErrors]= useState(true)
   const [pagination, setPagination] = useState({
     page: 0,
     rowsPerPage: 5,    // Set page size to 5
@@ -353,6 +357,17 @@ console.log("view images",viewImages)
 
    const [isSubmitting, setIsSubmitting] = useState(false);
 
+
+
+   
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const isValidPhone = (phone) => {
+    return /^[\d\s\-\+\(\)]{10,}$/.test(phone);
+  };
+
   // Your complete form data structure
   const [formData, setFormData] = useState({
     RolesAndResponsibility: [{
@@ -527,43 +542,49 @@ console.log("view images",viewImages)
       Condition: ''
     }],
     FireDrillLog: [{
-      dateOfDrill: "",
-      timeOfDrillStart: "",
-      timeOfDrillEnd: "",
-      typeOfDrill: [],
-      participants: {
-        students: {
-          boys: 0,
-          girls: 0
-        },
-        staff: {
-          teaching: 0,
-          nonTeaching: 0,
-          admin: 0,
-          support: 0
-        }
-      },
-      timeTakenToEvacuate: 0,
-      issuesEncountered: '',
-      disabledAssistedStudentsEvacuated: '',
-      comments: '',
-      fireSafetyEquipment: {
-        alarm: false,
-        fireExtinguisher: false,
-        megaphone: false,
-        fireHose: false,
-        sprinklerSystem: false,
-        other: false,
-        otherDetails: ''
-      },
-      observationsFromSafetyOfficer: '',
-      correctiveActions: '',
-      drillConductedBy: '',
-      signatureAndDate: {
-        name: '',
-        date: null
-      }
-    }],
+  dateOfDrill: "",
+  timeOfDrillStart: "",
+  timeOfDrillEnd: "",
+  typeOfDrill: [], // ✅ Always an array (not a string)
+
+  participants: {
+    students: {
+      boys: 0,
+      girls: 0
+    },
+    staff: {
+      teaching: 0,
+      nonTeaching: 0,
+      admin: 0,
+      support: 0
+    }
+  },
+
+  timeTakenToEvacuate: 0,
+  issuesEncountered: '',
+  disabledAssistedStudentsEvacuated: '',
+  comments: '',
+
+  fireSafetyEquipment: {
+    alarm: false,
+    fireExtinguisher: false,
+    megaphone: false,
+    fireHose: false,
+    sprinklerSystem: false,
+    other: false,
+    otherDetails: ''
+  },
+
+  observationsFromSafetyOfficer: '',
+  correctiveActions: '',
+  drillConductedBy: '',
+
+  signatureAndDate: {
+    name: '',
+    date: null
+  }
+}],
+
     RecoveryAndDamagedDestroyedBuilding: [{
       damagedDestroyedBuilding: '',
       recoveryMeasures: '',
@@ -653,7 +674,323 @@ console.log("view images",viewImages)
   });
   console.log(formData)
 
+    const steps = [
+    {
+      id: 0,
+      title: 'Roles & Responsibilities',
+      icon: <Users className="w-4 h-4" />
+    },
+    {
+      id: 1,
+      title: 'Safety & Emergency Plans',
+      icon: <AlertCircle className="w-4 h-4" />
+    },
+    {
+      id:2,
+      title:"First aid And Refferal Directory",
+      icon:<DevicesOther className='w-4 h-4'/>
+    },
+    {
+      id:3,
+      title:"Local Health Emergency Referral Directory",
+      icon:<Healing className='w-4 h-4'/>
+    },{
+      id:4,
+      title:"LocalHealth",
+      icon:<LocalActivity className='w-4 h-4'/>
+    }
+  ];
+
+
+
+
+   const stepValidations = {
+  0: [
+    // Principal info
+    'RolesAndResponsibility.0.principalinfo.principalName',
+    'RolesAndResponsibility.0.principalinfo.principalPhone',
+    'RolesAndResponsibility.0.principalinfo.principalEmail',
+    // Vice Principal info
+    'RolesAndResponsibility.0.vicePrincipalinfo.vicePrincipalName',
+    'RolesAndResponsibility.0.vicePrincipalinfo.vicePrincipalPhone',
+    'RolesAndResponsibility.0.vicePrincipalinfo.vicePrincipalEmail',
+    // Senior Coordinator
+    'RolesAndResponsibility.0.seniorCoordinate.seniorCoordinateName',
+    'RolesAndResponsibility.0.seniorCoordinate.seniorCoordinatePhone',
+    'RolesAndResponsibility.0.seniorCoordinate.seniorCoordinateEmail',
+    // Science Teachers
+    'RolesAndResponsibility.0.scienceTeachers.scienceTeacherName',
+    'RolesAndResponsibility.0.scienceTeachers.scienceTeacherPhone',
+    'RolesAndResponsibility.0.scienceTeachers.scienceTeacherEmail',
+    // Lab Assistant
+    'RolesAndResponsibility.0.labAsistant.labAsistantName',
+    'RolesAndResponsibility.0.labAsistant.labAsistantPhone',
+    'RolesAndResponsibility.0.labAsistant.labAsistantEmail',
+    // Head Girl/Boy
+    'RolesAndResponsibility.0.HeadGirlAndBoy.headBoyAndgirlName',
+    'RolesAndResponsibility.0.HeadGirlAndBoy.headBoyAndgirlPhone',
+    'RolesAndResponsibility.0.HeadGirlAndBoy.headBoyAndGirlEmail',
+    // Cultural Head
+    'RolesAndResponsibility.0.CulturalHeadAndLiteraryCaptain.CulturalHeadAndLiteraryCaptainName',
+    'RolesAndResponsibility.0.CulturalHeadAndLiteraryCaptain.CulturalHeadAndLiteraryCaptainPhone',
+    'RolesAndResponsibility.0.CulturalHeadAndLiteraryCaptain.CulturalHeadAndLiteraryCaptainEmail',
+    // School Safety Officer
+    'RolesAndResponsibility.0.SchoolSafetyOfficer.SchoolSafetyOfficerName',
+    'RolesAndResponsibility.0.SchoolSafetyOfficer.SchoolSafetyOfficerPhone',
+    'RolesAndResponsibility.0.SchoolSafetyOfficer.SchoolSafetyOfficerEmail'
+  ],
+  1: [
+    // Safety plans - checking if each section has required presence answer
+    'SafetyAndEmergencyPlans.0.mapOrientation.isPresent',
+    'SafetyAndEmergencyPlans.0.buildingLayout.isPresent',
+    'SafetyAndEmergencyPlans.0.evacuationRoutes.isPresent',
+    'SafetyAndEmergencyPlans.0.fireExits.isPresent',
+    'SafetyAndEmergencyPlans.0.fireEquipment.isPresent',
+    'SafetyAndEmergencyPlans.0.assemblyPoint.isPresent',
+    'SafetyAndEmergencyPlans.0.disabilityRoutes.isPresent',
+    'SafetyAndEmergencyPlans.0.emergencyContactInfo.isPresent',
+    'SafetyAndEmergencyPlans.0.legend.isPresent',
+    'SafetyAndEmergencyPlans.0.dateVersion.isPresent',
+    // Emergency contact details
+    'SafetyAndEmergencyPlans.0.emergencyContactInfo.fireStationNumber',
+    'SafetyAndEmergencyPlans.0.emergencyContactInfo.ambulanceNumber',
+    'SafetyAndEmergencyPlans.0.emergencyContactInfo.schoolSafetyOfficerContact',
+    'SafetyAndEmergencyPlans.0.emergencyContactInfo.disasterHelpline'
+  ],
+  2: [
+    // First Aid Referral Directory
+    'FirstAidReferralDirectory.0.name',
+    'FirstAidReferralDirectory.0.designation',
+    'FirstAidReferralDirectory.0.phone',
+    'FirstAidReferralDirectory.0.isFirstAidCertified',
+    'FirstAidReferralDirectory.0.locationInSchool'
+  ],
+  3: [
+    // Local Health Emergency Referral Directory - Primary Health Centre
+    'LocalHealthEmergencyReferralDirectory.primaryHealthCentre.0.facilityName',
+    'LocalHealthEmergencyReferralDirectory.primaryHealthCentre.0.phoneNumber',
+    'LocalHealthEmergencyReferralDirectory.primaryHealthCentre.0.distanceFromSchool',
+    // Government Hospital
+    'LocalHealthEmergencyReferralDirectory.governmentHospital.0.facilityName',
+    'LocalHealthEmergencyReferralDirectory.governmentHospital.0.phoneNumber',
+    'LocalHealthEmergencyReferralDirectory.governmentHospital.0.distanceFromSchool',
+    // Private Hospital
+    'LocalHealthEmergencyReferralDirectory.privateHospital.0.facilityName',
+    'LocalHealthEmergencyReferralDirectory.privateHospital.0.phoneNumber',
+    'LocalHealthEmergencyReferralDirectory.privateHospital.0.distanceFromSchool',
+    // Fire Department
+    'LocalHealthEmergencyReferralDirectory.fireDepartment.0.facilityName',
+    'LocalHealthEmergencyReferralDirectory.fireDepartment.0.phoneNumber',
+    'LocalHealthEmergencyReferralDirectory.fireDepartment.0.distanceFromSchool',
+    // Ambulance Service
+    'LocalHealthEmergencyReferralDirectory.ambulanceService.0.facilityName',
+    'LocalHealthEmergencyReferralDirectory.ambulanceService.0.phoneNumber',
+    'LocalHealthEmergencyReferralDirectory.ambulanceService.0.distanceFromSchool',
+    // NGO Helpline
+    'LocalHealthEmergencyReferralDirectory.ngoHelpline.0.facilityName',
+    'LocalHealthEmergencyReferralDirectory.ngoHelpline.0.phoneNumber',
+    'LocalHealthEmergencyReferralDirectory.ngoHelpline.0.distanceFromSchool'
+  ],
+  4: [
+    // Resource and Equipment Log
+    'ResourceAndEquipmentLog.0.item',
+    'ResourceAndEquipmentLog.0.location',
+    'ResourceAndEquipmentLog.0.typeSpecification',
+    'ResourceAndEquipmentLog.0.quantity',
+    'ResourceAndEquipmentLog.0.condition'
+  ],
+  5: [
+    // Fire Safety Equipment Inventory
+    'FireSafetyEquipmentInventory.0.Name',
+    'FireSafetyEquipmentInventory.0.Location',
+    'FireSafetyEquipmentInventory.0.TypeAndSpecification',
+    'FireSafetyEquipmentInventory.0.Quantity',
+    'FireSafetyEquipmentInventory.0.Condition'
+  ],
+  6: [
+    // Fire Drill Log
+    'FireDrillLog.0.dateOfDrill',
+    'FireDrillLog.0.timeOfDrillStart',
+    'FireDrillLog.0.timeOfDrillEnd',
+    'FireDrillLog.0.typeOfDrill',
+    'FireDrillLog.0.participants.students.boys',
+    'FireDrillLog.0.participants.students.girls',
+    'FireDrillLog.0.participants.staff.teaching',
+    'FireDrillLog.0.participants.staff.nonTeaching',
+    'FireDrillLog.0.timeTakenToEvacuate',
+    'FireDrillLog.0.drillConductedBy'
+  ],
+  7: [
+    // Recovery - Damaged/Destroyed Building
+    'RecoveryAndDamagedDestroyedBuilding.0.damagedDestroyedBuilding',
+    'RecoveryAndDamagedDestroyedBuilding.0.recoveryMeasures',
+    'RecoveryAndDamagedDestroyedBuilding.0.fundingSource',
+    'RecoveryAndDamagedDestroyedBuilding.0.implementingAgency',
+    'RecoveryAndDamagedDestroyedBuilding.0.responsibleOfficer'
+  ],
+  8: [
+    // Recovery - Equipment/Furniture
+    'RecoveryAndEquipmentFurniture.0.damagedDestroyedEquipmentFurniture',
+    'RecoveryAndEquipmentFurniture.0.recoveryMeasures',
+    'RecoveryAndEquipmentFurniture.0.fundingSource',
+    'RecoveryAndEquipmentFurniture.0.implementingAgency',
+    'RecoveryAndEquipmentFurniture.0.responsibleOfficer'
+  ],
+  9: [
+    // Functioning of Education
+    'FunctioningOfEducation.0.alterateSchoolLocation',
+    'FunctioningOfEducation.0.provisionForOnlineEducation',
+    'FunctioningOfEducation.0.fundingSourceToMeetExpenditure',
+    'FunctioningOfEducation.0.responsibility'
+  ],
+  10: [
+    // Plan Update Cycle
+    'PlanUpdationCycle.0.versionDate',
+    'PlanUpdationCycle.0.updateTrigger',
+    'PlanUpdationCycle.0.keyChangesMade',
+    'PlanUpdationCycle.0.reviewedBy',
+    'PlanUpdationCycle.0.nextScheduledUpdate'
+  ],
+  11: [
+    // Feedback Mechanism Community Validation
+    'FeedBackMechanismCommunityValidation.0.FeedbackSource',
+    'FeedBackMechanismCommunityValidation.0.DateReceived',
+    'FeedBackMechanismCommunityValidation.0.FeedBackSummary',
+    'FeedBackMechanismCommunityValidation.0.ActionTaken'
+  ],
+  12: [
+    // Psychological Recovery
+    'PsychologicalRecovery.0.noOfStudents',
+    'PsychologicalRecovery.0.teacherStaffNeed',
+    'PsychologicalRecovery.0.nameOfCounselors',
+    'PsychologicalRecovery.0.contactNoOfcounselors',
+    'PsychologicalRecovery.0.counselorsAddress',
+    'PsychologicalRecovery.0.counselorsResponsibility'
+  ],
+  13: [
+    // Team for Students Special Need
+    'TeamForStudentsSpecialNeed.0.nameOfTeamMember',
+    'TeamForStudentsSpecialNeed.0.memberDesignation',
+    'TeamForStudentsSpecialNeed.0.memberAddress',
+    'TeamForStudentsSpecialNeed.0.memberContactno',
+    'TeamForStudentsSpecialNeed.0.nameOftheStudent',
+    'TeamForStudentsSpecialNeed.0.studentContactNo',
+    'TeamForStudentsSpecialNeed.0.studentAddress'
+  ],
+  14: [
+    // Disaster Accident Reporting
+    'DisasterAccidentReporting.0.schoolName',
+    'DisasterAccidentReporting.0.schoolAddress',
+    'DisasterAccidentReporting.0.contactNumber',
+    'DisasterAccidentReporting.0.incidentDate',
+    'DisasterAccidentReporting.0.incidentTime',
+    'DisasterAccidentReporting.0.disasterType',
+    'DisasterAccidentReporting.0.totalAffectedPersons',
+    'DisasterAccidentReporting.0.reportedBy',
+    'DisasterAccidentReporting.0.reportedDate',
+    'DisasterAccidentReporting.0.status'
+  ],
+  15: [
+    // Monthly Quarterly Review
+    'MonthlyQuarterlyReview.0.reviewDate',
+    'MonthlyQuarterlyReview.0.reviewType',
+    'MonthlyQuarterlyReview.0.checklistName',
+    'MonthlyQuarterlyReview.0.status',
+    'MonthlyQuarterlyReview.0.reviewedBy',
+    'MonthlyQuarterlyReview.0.nextReviewDate'
+  ]
+};
+
+
+
+
+
+
+  const getNestedValue = (obj, path) => {
+    return path.split('.').reduce((current, key) => {
+      return current?.[key];
+    }, obj);
+  };
+
+  const setNestedValue = (obj, path, value) => {
+    const keys = path.split('.');
+    const lastKey = keys.pop();
+    const target = keys.reduce((current, key) => {
+      if (!current[key]) current[key] = {};
+      return current[key];
+    }, obj);
+    target[lastKey] = value;
+  };
+
+
+
+
+
+    const validateCurrentStep = () => {
+    const requiredFields = stepValidations[currentStep] || [];
+    const newErrors = {};
+    let isValid = true;
+
+    requiredFields.forEach(fieldPath => {
+      const value = getNestedValue(formData, fieldPath);
+      
+      // Check if field is empty or null
+      if (value === null || value === undefined || (typeof value === 'string' && !value.trim())) {
+        newErrors[fieldPath] = 'This field is required';
+        isValid = false;
+      } 
+      // Email validation
+      else if (fieldPath.includes('Email') && !isValidEmail(value)) {
+        newErrors[fieldPath] = 'Please enter a valid email address';
+        isValid = false;
+      }
+      // Phone validation
+      else if (fieldPath.includes('Phone') && !isValidPhone(value)) {
+        newErrors[fieldPath] = 'Please enter a valid phone number';
+        isValid = false;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+
+
   
+  const handleNext = () => {
+    if (validateCurrentStep()) {
+      setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
+    }
+  };
+
+  const handlePrevious = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 0));
+  };
+
+
+
+    const isStepComplete = (stepIndex) => {
+    const requiredFields = stepValidations[stepIndex] || [];
+    return requiredFields.every(fieldPath => {
+      const value = getNestedValue(formData, fieldPath);
+      return value !== null && value !== undefined && 
+             (typeof value !== 'string' || value.trim() !== '');
+    });
+  };
+
+  const getFieldError = (fieldPath) => {
+    return errors[fieldPath];
+  };
+
+  const getInputClassName = (fieldPath) => {
+    return `h-10 border rounded-md px-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+      getFieldError(fieldPath) ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'
+    }`;
+  };
+
+
+
  const getPeriod = (hour) => {
     if (hour >= 6 && hour < 12) return 'Morning (6:00 AM - 12:00 PM)';
     if (hour >= 12 && hour < 17) return 'Afternoon (12:00 PM - 5:00 PM)';
@@ -774,51 +1111,101 @@ const tooltipInfo = {
   //   }
   // };
 
-const renderImageViewer = (section) =>
-    currentSection === section &&
-    viewImages[section]?.length > 0 && (
-      <div className="mt-4 border rounded-lg p-4 bg-gray-50">
-        <h3 className="text-md font-semibold mb-2">
-          {section.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())} Images
-        </h3>
-        <div className="text-center">
-          <img
-            src={viewImages[section][currentIndex]}
-            alt={`${section} image`}
-            className="max-w-full max-h-[40vh] object-contain mx-auto rounded-lg shadow-md"
-          />
+// const renderImageViewer = (section) =>
+//     currentSection === section &&
+//     viewImages[section]?.length > 0 && (
+//       <div className="mt-4 border rounded-lg p-4 bg-gray-50">
+//         <h3 className="text-md font-semibold mb-2">
+//           {section.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())} Images
+//         </h3>
+//         <div className="text-center">
+//           <img
+//             src={viewImages[section][currentIndex]}
+//             alt={`${section} image`}
+//             className="max-w-full max-h-[40vh] object-contain mx-auto rounded-lg shadow-md"
+//           />
 
-          {/* Navigation */}
+//           {/* Navigation */}
+//           {viewImages[section].length > 1 && (
+//             <div className="flex justify-between mt-3">
+//               <button
+//                 onClick={() =>
+//                   setCurrentIndex((prev) =>
+//                     prev > 0 ? prev - 1 : viewImages[section].length - 1
+//                   )
+//                 }
+//                 className="px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-800"
+//               >
+//                 Previous
+//               </button>
+//               <span className="flex items-center text-gray-600">
+//                 {currentIndex + 1} of {viewImages[section].length}
+//               </span>
+//               <button
+//                 onClick={() =>
+//                   setCurrentIndex((prev) =>
+//                     prev < viewImages[section].length - 1 ? prev + 1 : 0
+//                   )
+//                 }
+//                 className="px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-800"
+//               >
+//                 Next
+//               </button>
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//     );
+
+
+const renderImageViewer = (section) => {
+  return currentSection === section &&
+    viewImages[section]?.length > 0 ? (
+    <div className="mt-4 border rounded-lg p-4 bg-gray-50">
+      <h3 className="text-md font-semibold mb-2">
+        {section.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())} Images
+      </h3>
+      <div className="text-center" style={{height:'100px',width:"100px",marginBottom:"100px"}}>
+        <img
+          src={viewImages[section][currentIndex]}
+          alt={`${section} image`}
+          className="max-w-full max-h-32 object-contain mx-auto rounded-lg shadow-md"
+        />
+
+        {/* Navigation */}
+       
           {viewImages[section].length > 1 && (
-            <div className="flex justify-between mt-3">
-              <button
-                onClick={() =>
-                  setCurrentIndex((prev) =>
-                    prev > 0 ? prev - 1 : viewImages[section].length - 1
-                  )
-                }
-                className="px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-800"
-              >
-                Previous
-              </button>
-              <span className="flex items-center text-gray-600">
-                {currentIndex + 1} of {viewImages[section].length}
-              </span>
-              <button
-                onClick={() =>
-                  setCurrentIndex((prev) =>
-                    prev < viewImages[section].length - 1 ? prev + 1 : 0
-                  )
-                }
-                className="px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-800"
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </div>
+          <div className="flex justify-between mt-3">
+            <button
+              onClick={() =>
+                setCurrentIndex((prev) =>
+                  prev > 0 ? prev - 1 : viewImages[section].length - 1
+                )
+              }
+              className="px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-800"
+            >
+              Previous
+            </button>
+            <span className="flex items-center text-gray-600">
+              {currentIndex + 1} of {viewImages[section].length}
+            </span>
+            <button
+              onClick={() =>
+                setCurrentIndex((prev) =>
+                  prev < viewImages[section].length - 1 ? prev + 1 : 0
+                )
+              }
+              className="px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-800"
+            >
+              Next
+            </button>
+          </div>
+        )}
+       
       </div>
-    );
+    </div>
+  ) : null;
+};
 
 
 
@@ -910,7 +1297,7 @@ const renderImageViewer = (section) =>
   const FilePreview = ({ fileData, onRemove }) => {
     if (!fileData) return null;
     return (
-      <div className="mt-2 p-2 bg-gray-50 rounded border">
+      <div className="mt-2 p-2 bg-gray-50 rounded border" style={{height:"60px"}}>
         <span className="text-sm text-gray-600">{fileData.name || 'File uploaded'}</span>
         <button onClick={onRemove} className="ml-2 text-red-500 text-sm" style={{ backgroundColor: "#008000" }}>Remove</button>
       </div>
@@ -976,247 +1363,7 @@ const renderImageViewer = (section) =>
     });
   };
 
-  // const handleChange = (e) => {
-  //   const { name, value, type, checked, files } = e.target;
-
-  //   setFormData((prevData) => {
-  //     const newData = JSON.parse(JSON.stringify(prevData)); // Deep clone
-
-  //     // Helper function to get the correct value based on input type
-  //     const getValue = () => {
-  //       if (type === "checkbox") return checked;
-  //       if (type === "radio") return value === "yes";
-  //       if (type === "number") return parseInt(value) || 0;
-  //       if (type === "date") return value || null;
-  //       if (type === "file")
-  //         return files
-  //           ? files.length > 1
-  //             ? Array.from(files)
-  //             : files[0]
-  //           : "";
-  //       return value;
-  //     };
-
-  //     // Handle ResourceAndEquipmentLog array notation (e.g., ResourceAndEquipmentLog[0].location)
-  //     if (name.includes("ResourceAndEquipmentLog[") && name.includes("].")) {
-  //       const match = name.match(/ResourceAndEquipmentLog\[(\d+)\]\.(.+)/);
-  //       if (match) {
-  //         const index = parseInt(match[1]);
-  //         const field = match[2];
-
-  //         if (newData.ResourceAndEquipmentLog && newData.ResourceAndEquipmentLog[index]) {
-  //           newData.ResourceAndEquipmentLog[index][field] =
-  //             field === "quantity" ? parseInt(value) || 0 : getValue();
-  //         }
-  //         return newData;
-  //       }
-  //     }
-
-  //     // Handle file inputs
-  //     if (type === "file") {
-  //       if (name.includes("_file")) {
-  //         const [section] = name.split("_");
-  //         if (newData.SafetyAndEmergencyPlans?.[0]?.[section]) {
-  //           newData.SafetyAndEmergencyPlans[0][section].file = files[0] || "";
-  //         }
-  //       } else if (name === "uploadImage") {
-  //         newData.uploadImage = Array.from(files);
-  //       } else if (name === "uploadVideo") {
-  //         newData.uploadVideo = Array.from(files);
-  //       } else if (name === "uploadLetter") {
-  //         newData.uploadLetter = files[0] || "";
-  //       }
-  //       return newData;
-  //     }
-
-  //     // Handle basic form fields (direct properties)
-  //     if (!name.includes("_") && !name.includes(".") && !name.includes("[")) {
-  //       if (newData.hasOwnProperty(name)) {
-  //         newData[name] = getValue();
-  //         return newData;
-  //       }
-
-  //       // Handle RolesAndResponsibility specific field mappings
-  //       const roleFieldMappings = {
-  //         principalName: "principalinfo.principalName",
-  //         principalPhone: "principalinfo.principalPhone",
-  //         principalEmail: "principalinfo.principalEmail",
-  //         vicePrincipalName: "vicePrincipalinfo.vicePrincipalName",
-  //         vicePrincipalPhone: "vicePrincipalinfo.vicePrincipalPhone",
-  //         vicePrincipalEmail: "vicePrincipalinfo.vicePrincipalEmail",
-  //         seniorCoordinateName: "seniorCoordinate.seniorCoordinateName",
-  //         seniorCoordinatePhone: "seniorCoordinate.seniorCoordinatePhone",
-  //         seniorCoordinateEmail: "seniorCoordinate.seniorCoordinateEmail",
-  //         scienceTeacherName: "scienceTeachers.scienceTeacherName",
-  //         scienceTeacherPhone: "scienceTeachers.scienceTeacherPhone",
-  //         scienceTeacherEmail: "scienceTeachers.scienceTeacherEmail",
-  //         labAsistantName: "labAsistant.labAsistantName",
-  //         labAsistantPhone: "labAsistant.labAsistantPhone",
-  //         labAsistantEmail: "labAsistant.labAsistantEmail",
-  //         headBoyAndgirlPhone: "HeadGirlAndBoy.headBoyAndgirlPhone",
-  //         headBoyAndGirlEmail: "HeadGirlAndBoy.headBoyAndGirlEmail",
-  //         CulturalHeadAndLiteraryCaptainPhone:
-  //           "CulturalHeadAndLiteraryCaptain.CulturalHeadAndLiteraryCaptainPhone",
-  //         CulturalHeadAndLiteraryCaptainEmail:
-  //           "CulturalHeadAndLiteraryCaptain.CulturalHeadAndLiteraryCaptainEmail",
-  //       };
-
-  //       if (roleFieldMappings[name]) {
-  //         const [section, field] = roleFieldMappings[name].split(".");
-  //         if (newData.RolesAndResponsibility?.[0]?.[section]) {
-  //           newData.RolesAndResponsibility[0][section][field] = getValue();
-  //           return newData;
-  //         }
-  //       }
-
-  //       // Check if it belongs to any array sections
-  //       const arraySections = [
-  //         "FirstAidReferralDirectory",
-  //         "LocalHealthEmergencyReferralDirectory",
-  //         "ResourceAndEquipmentLog",
-  //         "FireSafetyEquipmentInventory",
-  //         "FireDrillLog",
-  //         "RecoveryAndDamagedDestroyedBuilding",
-  //         "RecoveryAndEquipmentFurniture",
-  //         "FunctioningOfEducation",
-  //         "PlanUpdationCycle",
-  //         "FeedBackMechanismCommunityValidation",
-  //         "PsychologicalRecovery",
-  //         "TeamForStudentsSpecialNeed",
-  //         "DisasterAccidentReporting",
-  //         "MonthlyQuarterlyReview",
-  //         "AdditionalFeedback",
-  //       ];
-
-  //       for (const section of arraySections) {
-  //         if (newData[section]?.[0]?.hasOwnProperty(name)) {
-  //           newData[section][0][name] = getValue();
-  //           return newData;
-  //         }
-  //       }
-  //     }
-
-  //     // Handle dot notation (nested fields)
-  //     if (name.includes(".")) {
-  //       const parts = name.split(".");
-
-  //       if (parts.length >= 4 && parts[0] === "RolesAndResponsibility") {
-  //         const [mainSection, index, subSection, field] = parts;
-  //         const arrayIndex = parseInt(index);
-  //         if (newData[mainSection]?.[arrayIndex]?.[subSection]) {
-  //           newData[mainSection][arrayIndex][subSection][field] = getValue();
-  //         }
-  //       } else if (parts.length === 2) {
-  //         const [section, field] = parts;
-  //         if (newData.RolesAndResponsibility?.[0]?.[section]) {
-  //           newData.RolesAndResponsibility[0][section][field] = getValue();
-  //         }
-  //       } else if (parts.length >= 3) {
-  //         const [mainSection, index, field] = parts;
-  //         const arrayIndex = parseInt(index);
-
-  //         const arraySections = [
-  //           "FirstAidReferralDirectory",
-  //           "LocalHealthEmergencyReferralDirectory",
-  //           "ResourceAndEquipmentLog",
-  //           "FireSafetyEquipmentInventory",
-  //           "FireDrillLog",
-  //           "RecoveryAndDamagedDestroyedBuilding",
-  //           "RecoveryAndEquipmentFurniture",
-  //           "FunctioningOfEducation",
-  //           "PlanUpdationCycle",
-  //           "FeedBackMechanismCommunityValidation",
-  //           "PsychologicalRecovery",
-  //           "TeamForStudentsSpecialNeed",
-  //           "DisasterAccidentReporting",
-  //           "MonthlyQuarterlyReview",
-  //           "AdditionalFeedback",
-  //           "SafetyAndEmergencyPlans",
-  //         ];
-
-  //         if (arraySections.includes(mainSection) && newData[mainSection]?.[arrayIndex]) {
-  //           if (parts.length === 3) {
-  //             newData[mainSection][arrayIndex][field] = getValue();
-  //           } else if (parts.length === 4) {
-  //             const [, , subSection, subField] = parts;
-  //             if (newData[mainSection][arrayIndex][subSection]) {
-  //               newData[mainSection][arrayIndex][subSection][subField] = getValue();
-  //             }
-  //           } else if (parts.length === 5) {
-  //             const [, , subSection, subSubSection, subField] = parts;
-  //             if (newData[mainSection][arrayIndex][subSection]?.[subSubSection]) {
-  //               newData[mainSection][arrayIndex][subSection][subSubSection][subField] = getValue();
-  //             }
-  //           }
-  //         }
-  //       }
-  //       return newData;
-  //     }
-
-  //     // Handle underscore notation
-  //     if (name.includes("_")) {
-  //       const parts = name.split("_");
-
-  //       if (parts.length === 2) {
-  //         const [section, field] = parts;
-
-  //         if (newData.SafetyAndEmergencyPlans?.[0]?.[section]) {
-  //           newData.SafetyAndEmergencyPlans[0][section][field] = getValue();
-  //           return newData;
-  //         }
-
-  //         if (section === "fireSafetyEquipment" && newData.FireDrillLog?.[0]?.fireSafetyEquipment) {
-  //           newData.FireDrillLog[0].fireSafetyEquipment[field] = getValue();
-  //           return newData;
-  //         }
-
-  //         if (section === "signatureAndDate" && newData.FireDrillLog?.[0]?.signatureAndDate) {
-  //           newData.FireDrillLog[0].signatureAndDate[field] = getValue();
-  //           return newData;
-  //         }
-
-  //         const arraySections = [
-  //           "FirstAidReferralDirectory",
-  //           "LocalHealthEmergencyReferralDirectory",
-  //           "ResourceAndEquipmentLog",
-  //           "FireSafetyEquipmentInventory",
-  //           "RecoveryAndDamagedDestroyedBuilding",
-  //           "RecoveryAndEquipmentFurniture",
-  //           "FunctioningOfEducation",
-  //           "PlanUpdationCycle",
-  //           "FeedBackMechanismCommunityValidation",
-  //           "PsychologicalRecovery",
-  //           "TeamForStudentsSpecialNeed",
-  //           "DisasterAccidentReporting",
-  //           "MonthlyQuarterlyReview",
-  //           "AdditionalFeedback",
-  //         ];
-
-  //         for (const arraySection of arraySections) {
-  //           if (newData[arraySection]?.[0]?.[section]) {
-  //             newData[arraySection][0][section][field] = getValue();
-  //             return newData;
-  //           }
-  //         }
-  //       } else if (parts.length === 3) {
-  //         const [section, subsection, field] = parts;
-
-  //         if (section === "participants" && newData.FireDrillLog?.[0]?.participants?.[subsection]) {
-  //           newData.FireDrillLog[0].participants[subsection][field] = getValue();
-  //           return newData;
-  //         }
-
-  //         if (section === "deaths" && newData.DisasterAccidentReporting?.[0]?.deaths) {
-  //           newData.DisasterAccidentReporting[0].deaths[subsection] = getValue();
-  //           return newData;
-  //         }
-  //       }
-  //     }
-
-  //     return newData;
-  //   });
-  // };
-
+ 
 
   const handleChange = (e) => {
   const { name, value, type, checked, files } = e.target;
@@ -1226,19 +1373,18 @@ const renderImageViewer = (section) =>
 
     // 🔥 Handle FireDrillLog typeOfDrill (multi-select checkbox)
     if (name === "FireDrillLog.0.typeOfDrill") {
-      let currentTypes = newData.FireDrillLog[0].typeOfDrill || [];
-      if (checked) {
-        // Add value if checked
-        if (!currentTypes.includes(value)) {
-          currentTypes.push(value);
-        }
-      } else {
-        // Remove value if unchecked
-        currentTypes = currentTypes.filter((type) => type !== value);
-      }
-      newData.FireDrillLog[0].typeOfDrill = currentTypes;
-      return newData;
+  let currentTypes = newData.FireDrillLog[0].typeOfDrill || [];
+  if (checked) {
+    if (!currentTypes.includes(value)) {
+      currentTypes.push(value);
     }
+  } else {
+    currentTypes = currentTypes.filter((type) => type !== value);
+  }
+  newData.FireDrillLog[0].typeOfDrill = currentTypes;
+  return newData;
+}
+
 
     // Helper function to get correct value based on input type
     const getValue = () => {
@@ -1679,6 +1825,7 @@ const handleBooking = () => {
   const inputStyle = {
     padding: '8px 12px',
     border: '1px solid #d1d5db',
+    marginTop:"10px",
     borderRadius: '6px',
     fontSize: '14px',
     width: '100%',
@@ -1688,7 +1835,7 @@ const handleBooking = () => {
   const headingStyle = {
     fontSize: '16px',
     fontWeight: 'bold',
-    color: 'black',
+    color: '#ffb673',
     // marginBottom: '20px'
     marginTop:"20px"
   };
@@ -1705,7 +1852,7 @@ const handleBooking = () => {
       content: (
         <div className='container'>
           <section className="mb-8 h-auto w-screen p-40" >
-            <h2 className="font-bold text-[#8BAE3F] text-xl mb-6" style={{ fontSize: "16px", color: 'black',fontWeight:"bold" }}>
+            <h2 className="font-bold text-[#8BAE3F] text-xl mb-6" style={{ fontSize: "16px", color: '#ffb673',fontWeight:"bold" }}>
               Roles and Responsibilities Matrix
             </h2>
 
@@ -2008,16 +2155,32 @@ const handleBooking = () => {
                 />
               </div>
             </div>
-            <h2 style={headingStyle} className="font-bold  text-xl mb-4"  >
-              2. Evacuation Map Template for Schools
-            </h2>
+            
+
 
             {/* Form Section */}
-     <div>
+   
+              {/* </div> */}
+            {/* </div> */}
+            
+          
+          </section>
+        </div>
+      )
+    },
+
+    {
+      id:2,
+      label:'Evacuation map Template',
+      content:(
+        <div className='container'>
+
+            <div>
              <div style={sectionStyle} className="space-y-6">
 
               {/* 1. Map Orientation */}
                  <div className="rounded-lg p-4 border border-gray-200">
+                  <h2 style={{fontSize:"16px"}}>Evacuation Map Orientation</h2>
         <p className="text-sm font-medium mb-4 text-gray-500">1. Map Orientation</p>
         <div className="flex items-center gap-8 flex-wrap pl-4">
           {["yes", "no"].map((v) => (
@@ -2083,7 +2246,7 @@ const handleBooking = () => {
   onRemove={() => removeFile("dateVersion_file")}
 />
 
-<div className="flex gap-4 flex-wrap mt-4">
+<div className="flex gap-4 flex-wrap mt-4" style={{height:"40px"}}>
   <button
     onClick={() =>
       setCurrentSection(
@@ -2095,8 +2258,9 @@ const handleBooking = () => {
       alignItems: "center",
       gap: "8px",
       padding: "10px 20px",
-      background: "linear-gradient(90deg, #f27f22, #f27f22)", // gradient green
+      background: "linear-gradient(90deg, #48bb78, #48bb78)", // gradient green
       color: "white",
+      height: "40px",
       fontWeight: "600",
       border: "none",
       borderRadius: "12px",
@@ -2106,11 +2270,11 @@ const handleBooking = () => {
     }}
     onMouseOver={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #f27f22, #f27f22)")
+        "linear-gradient(90deg, #48bb78, #48bb78)")
     }
     onMouseOut={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #f27f22, #f27f22)")
+        "linear-gradient(90deg, #48bb78, #48bb78)")
     }
     onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
     onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
@@ -2131,7 +2295,7 @@ const handleBooking = () => {
       />
       <circle cx="12" cy="12" r="3" />
     </svg>
-    {currentSection === "dateVersion" ? "Hide Image" : "View Image"}
+   <div > {currentSection === "dateVersion" ? "Hide Image" : "View Image"}</div>
   </button>
 </div>
 
@@ -2194,7 +2358,7 @@ const handleBooking = () => {
       alignItems: "center",
       gap: "8px",
       padding: "10px 20px",
-      background: "linear-gradient(90deg, #f27f22, #f27f22)", // gradient green
+      background: "linear-gradient(90deg, #48bb78, #48bb78)", // gradient green
       color: "white",
       fontWeight: "600",
       fontSize: "14px",
@@ -2206,11 +2370,11 @@ const handleBooking = () => {
     }}
   onMouseOver={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #f27f22, #f27f22)")
+        "linear-gradient(90deg, #48bb78, #48bb78)")
     }
     onMouseOut={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #f27f22, #f27f22)")
+        "linear-gradient(90deg, #48bb78, #48bb78)")
     }
     onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
     onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
@@ -2306,7 +2470,7 @@ const handleBooking = () => {
       alignItems: "center",
       gap: "8px",
       padding: "10px 20px",
-      background: "linear-gradient(90deg, #f27f22, #f27f22)", // green gradient
+      background: "linear-gradient(90deg, #48bb78, #48bb78)", // green gradient
       color: "white",
       fontWeight: "600",
       fontSize: "14px",
@@ -2318,11 +2482,11 @@ const handleBooking = () => {
     }}
   onMouseOver={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #f27f22, #f27f22)")
+        "linear-gradient(90deg, #48bb78, #48bb78)")
     }
     onMouseOut={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #f27f22, #f27f22)")
+        "linear-gradient(90deg, #48bb78, #48bb78)")
     }
     onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
     onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
@@ -2353,7 +2517,8 @@ const handleBooking = () => {
 
 
               {/* 4. Fire Exits */}
-           <div className="rounded-lg p-4 border border-gray-200">
+          <div className='h-40 w-full border-1 border-gray-700' style={{height:"200px",width:"screen", border:"1px #545454",marginRight:"40px"}}>
+             <div className="rounded-lg p-4 " style={{marginRight:"20px"}}>
         <p className="text-sm font-medium mb-4 text-gray-500">
           4. Fire Exits{" "}
           <span className="text-gray-400 ml-1">(Clearly marked with red icons or arrows)</span>
@@ -2400,7 +2565,7 @@ const handleBooking = () => {
         alignItems: "center",
         gap: "8px",
         padding: "10px 20px",
-        background: "linear-gradient(90deg, #f27f22, #f27f22)", // green gradient
+        background: "linear-gradient(90deg, #48bb78, #48bb78)", // green gradient
         color: "white",
         fontWeight: "600",
         fontSize: "14px",
@@ -2412,11 +2577,11 @@ const handleBooking = () => {
       }}
      onMouseOver={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #f27f22, #f27f22)")
+        "linear-gradient(90deg, #48bb78, #48bb78)")
     }
     onMouseOut={(e) =>
       (e.currentTarget.style.background =
-        "linear-gradient(90deg, #f27f22, #f27f22)")
+        "linear-gradient(90deg, #48bb78, #48bb78)")
     }
       onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
       onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
@@ -2447,6 +2612,7 @@ const handleBooking = () => {
 </div>
 
        </div>
+          </div>
 
 </div>
 
@@ -2497,14 +2663,16 @@ const handleBooking = () => {
                 name={`fireEquipment_${key}`}
                 onChange={handleChange}
                 className="h-4 w-4"
+                style={{marginLeft:"6px"}}
               />
-              <span className="text-sm text-gray-600">{label}</span>
+              <span className="text-sm text-gray-600" style={{marginRight:"12"}}>{label}</span>
             </label>
           ))}
         </div>
 
         <FilePreview
           fileData={formData.SafetyAndEmergencyPlans[0]?.fireEquipment?.file}
+          
           onRemove={() => removeFile("fireEquipment_file")}
         />
 <div>
@@ -2532,7 +2700,7 @@ const handleBooking = () => {
     `}
   </style>
 
-  <div className="flex gap-4 flex-wrap mt-4">
+  <div className="flex gap-4 flex-wrap mt-4" >
     <button
       onClick={() =>
         setCurrentSection(
@@ -2540,6 +2708,7 @@ const handleBooking = () => {
         )
       }
       className="view-btn"
+      style={{backgroundColor:"#f27f22"}}
     >
       View Image
     </button>
@@ -2581,18 +2750,27 @@ const handleBooking = () => {
             name="assemblyPoint_file"
             onChange={handleChange}
             className="cursor-pointer border-2 border-gray-300 px-3 py-1 rounded-sm text-sm hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+            style={{width:"220px"}}
           />
         </div>
 
         <div className="mt-3">
-          <input
+          <textarea
+    placeholder="Assembly point description"
+    name="legend_symbolsAndMeanings"
+    value={formData.SafetyAndEmergencyPlans[0]?.assemblyPoint?.description || ""}
+      onChange={handleChange}
+   className="w-full px-2 py-1 border border-gray-300 rounded"
+   style={{height:"80px",width:"100%"}}
+  />
+          {/* <input
             type="text"
             placeholder="Assembly point description / location"
             value={formData.SafetyAndEmergencyPlans[0]?.assemblyPoint?.description || ""}
             name="assemblyPoint_description"
             onChange={handleChange}
             className="w-full px-2 py-1 border border-gray-300 rounded"
-          />
+          /> */}
         </div>
 
         <FilePreview
@@ -2685,7 +2863,7 @@ const handleBooking = () => {
   </div>
 
   {/* Sub-checks */}
-  <div className="mt-3 grid gap-2 sm:grid-cols-3">
+  <div className="mt-3 grid gap-2 sm:grid-cols-3" style={{marginLeft:"6px"}}>
     {[
       ["ramps", "Ramps"],
       ["widerExits", "Wider exits"],
@@ -2702,7 +2880,7 @@ const handleBooking = () => {
           onChange={handleChange}
           className="h-4 w-4"
         />
-        <span className="text-sm text-gray-600">{label}</span>
+        <span className="text-sm text-gray-600" style={{marginRight:"7px"}}>{label}</span>
       </label>
     ))}
   </div>
@@ -2790,7 +2968,7 @@ const handleBooking = () => {
                 </div>
 
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <label htmlFor="Number">Fire Station Number</label>
+                  <label htmlFor="Number" style={{fontSize:"17px"}}>Fire Station Number</label>
                   <input
                     type="text"
                     placeholder="eg:998898898"
@@ -2798,9 +2976,10 @@ const handleBooking = () => {
                     value={formData.SafetyAndEmergencyPlans[0]?.emergencyContactInfo?.fireStationNumber || ''}
                     onChange={handleChange}
                     style={inputStyle}
-                    className="w-full px-2 py-1 border border-gray-300 rounded"
+                    className="w-full px-2 py-1 border border-gray-300 rounded" 
+                    
                   />
-                <label htmlFor="Contact">School Safety Officer Contact</label>
+                <label htmlFor="Contact" style={{fontSize:"17px"}}>School Safety Officer Contact</label>
 <input
   type="text"
   placeholder="eg: 998898898"
@@ -2815,7 +2994,7 @@ const handleBooking = () => {
   className="w-full px-2 py-1 border border-gray-300 rounded"
 />
 
-                  <label htmlFor="Number">Ambulance Number</label>
+                  <label htmlFor="Number" style={{fontSize:"17px"}}>Ambulance Number</label>
                   <input
                     type="text"
                     placeholder="Ambulance Number"
@@ -2825,7 +3004,7 @@ const handleBooking = () => {
                     style={inputStyle}
                     className="w-full px-2 py-1 border border-gray-300 rounded"
                   />
-                  <label htmlFor="Helpline">Disaster Helpline</label>
+                  <label htmlFor="Helpline" style={{fontSize:"17px"}}>Disaster Helpline</label>
                   <input
                     type="text"
                     placeholder="eg:108"
@@ -3010,12 +3189,18 @@ const handleBooking = () => {
                 <FilePreview fileData={formData.SafetyAndEmergencyPlans[0]?.dateVersion?.file} onRemove={() => removeFile("dateVersion_file")} />
               </div>
      </div>
-              {/* </div> */}
-            {/* </div> */}
-            <h2 style={headingStyle} className=''>First Aid and Referral Directory</h2>
+        </div>
+      )
+    },
+    {
+      id:3,
+      label:'First Aid Directory',
+      content:(
+        <div className='container'>
+          <h2 style={headingStyle} className=''>First Aid and Referral Directory</h2>
 
             <div style={{ ...sectionStyle, marginBottom: "10px" }}>
-              <p className="font-light text-gray-400 mb-3" style={{ fontSize: "20px", color: '#808080' }} >
+              <p className="font-light text-gray-400 mb-3" style={{ fontSize: "20px", color: '#ffb673' }} >
                 A. Local Health & Emergency Referral Directory
               </p>
 
@@ -3094,14 +3279,22 @@ const handleBooking = () => {
                 style={inputStyle}
               />
             </div>
+        </div>
+      )
+    },
+    {
+      id:4,
+      label:"Local Health & Emergency Referral Directory",
+      content:(
+        <div>
              <div className='container'>
           <section className="mb-8 h-auto">
 
             <div className="p-6 max-w-7xl mx-auto font-sans">
               <h2
                 // style={headingStyle} 
-                className='text-black'
-                style={{ fontSize: "16px", color: 'black' }} >B. Local Health & Emergency Referral Directory</h2>
+                className='text-[#ffb673]'
+                style={{ fontSize: "16px", color: '#ffb673' }} >B. Local Health & Emergency Referral Directory</h2>
 
 
               <div className="space-y-6 flex justify-end">
@@ -3700,1050 +3893,22 @@ const handleBooking = () => {
                 </div>
               </div>
             </div>
-            <h2
-              // style={headingStyle}
-              style={{ fontSize: "16px", color: 'black' }}>
-              4. Resource & Equipment Log (Fire Safety Focused)
-            </h2>
-            <h3 className="text-gray-500 font-semibold mb-3 text-sm" style={{ fontSize: "16px", color: '#808080' }}>
-              A. Fire Safety Equipment Inventory
-            </h3>
-
-            <div className="p-6 max-w-7xl mx-auto">
-              <div className="mb-4 flex justify-between items-center">
-                <button
-                  onClick={addNewRow}
-                  className="bg-[#8bae3f] text-white px-3 py-1 rounded text-sm hover:bg-[#8bae3f]"
-                  style={{ backgroundColor: "#f27f22",border: "none"  }}
-                >
-                  Add New Item
-                </button>
-                <IoIosInformationCircle className='text-3xl'/>
-              </div>
-
-              {formData.ResourceAndEquipmentLog.map((log, index) => (
-                <div key={index} style={sectionStyle} className="mb-6">
-                  <div className='flex flex-col'>
-                    <div className='flex justify-between items-center mb-4'>
-                      {/* <h3 className="text-lg font-semibold text-gray-700">Item #{index + 1}</h3>f */}
-                      {formData.ResourceAndEquipmentLog.length > 1 && (
-                        <button
-                          onClick={() => removeRow(index)}
-                          className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors"
-                          style={{ backgroundColor: "#008000" }}
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-
-                    <p className='text-gray-500'>Item</p>
-                    <input
-                      placeholder="Enter item name"
-                      style={inputStyle}
-                      name={`ResourceAndEquipmentLog[${index}].item`}
-                      value={log.item}
-                      onChange={handleChange}
-                      required
-                    />
-
-                    <div className='flex gap-8'>
-                      <div className='w-xl'>
-                        <p className='text-gray-500'>Location</p>
-                        <input
-                          placeholder="Enter location"
-                          name={`ResourceAndEquipmentLog[${index}].location`}
-                          value={log.location}
-                          onChange={handleChange}
-                          style={inputStyle}
-                          required
-                        />
-                      </div>
-                      <div className='w-xl relative '>
-                        <p className='text-gray-500'>Type/Specification</p>
-                        <input
-                          placeholder="Enter type/specification"
-                          name={`ResourceAndEquipmentLog[${index}].typeSpecification`}
-                          value={log.typeSpecification}
-                          onChange={handleChange}
-                          style={inputStyle}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className='flex gap-8'>
-                      <div className='w-xl'>
-                        <p className='text-gray-500'>Quantity</p>
-                        <input
-                          type="number"
-                          placeholder="Enter quantity"
-                          name={`ResourceAndEquipmentLog[${index}].quantity`}
-                          value={log.quantity}
-                          onChange={handleChange}
-                          style={inputStyle}
-                          required
-                        />
-                      </div>
-                      <div className='w-2xl relative '>
-                        <p className='text-gray-500'>Last Inspection Date</p>
-                        <input
-                          type="date"
-                          name={`ResourceAndEquipmentLog[${index}].lastInspectionDate`}
-                          value={log.lastInspectionDate || ""}
-                          onChange={handleChange}
-                          style={inputStyle}
-                        />
-                      </div>
-                      <div className='w-96 relative '>
-                        <p className='text-gray-500'>Next Due Date</p>
-                        <input
-                          type="date"
-                          name={`ResourceAndEquipmentLog[${index}].nextDueDate`}
-                          value={log.nextDueDate || ""}
-                          onChange={handleChange}
-                          style={inputStyle}
-                        />
-                      </div>
-                    </div>
-
-                    <div className='flex gap-8'>
-                      <div className='w-xl'>
-                        <p className='text-gray-500'>Condition (Good/Replace)</p>
-                        <select
-                          name={`ResourceAndEquipmentLog[${index}].condition`}
-                          value={log.condition}
-                          onChange={handleChange}
-                          style={inputStyle}
-                          className="cursor-pointer"
-                        >
-                          <option value="">Select condition</option>
-                          <option value="Good">Good</option>
-                          <option value="Replace">Replace</option>
-                        </select>
-                      </div>
-                      <div className='w-2xl relative '>
-                        <p className='text-gray-500'>Remarks</p>
-                        <input
-                          placeholder="Enter remarks"
-                          name={`ResourceAndEquipmentLog[${index}].remarks`}
-                          value={log.remarks}
-                          onChange={handleChange}
-                          style={inputStyle}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {/* === Section: Fire Safety Equipment Inventory === */}
-            <h2 style={headingStyle}>Fire Safety Equipment Inventory</h2>
-            <div style={sectionStyle}>
-              <div className='flex flex-col'>
-                <p className='text-gray-500'>Name</p>
-                <input
-                  placeholder="eg.Piyush"
-                  style={inputStyle}
-                  name='Name'
-                  value={formData.FireSafetyEquipmentInventory[0]?.Name}
-                  onChange={handleChange}
-                  required />
-                <div className='flex gap-8'>
-                  <div className='w-xl'>
-                    <p className='text-gray-500'>Location</p>
-                    <input
-                      placeholder="eg.Floor"
-                      name='Location'
-                      value={formData.FireSafetyEquipmentInventory[0]?.Location}
-                      onChange={handleChange}
-                      style={inputStyle} required />
-                  </div>
-
-                  <div className='w-xl relative '>
-                    <p className='text-gray-500'>Type/Specification</p>
-                    <input
-                      placeholder="Type/Specification (e.g., Ordinary combustibles)"
-                      name='TypeAndSpecification'
-                      value={formData.FireSafetyEquipmentInventory[0]?.TypeAndSpecification}
-                      onChange={handleChange}
-                      style={inputStyle}
-                      required />
-                  </div>
-                </div>
-                <div className='flex gap-8'>
-                  <div className='w-xl'>
-                    <p className='text-gray-500'>Quantity</p>
-                    <input
-                      placeholder="(e.g., 5L)"
-                      name='Quantity'
-                      value={formData.FireSafetyEquipmentInventory[0]?.Quantity}
-                      onChange={handleChange}
-                      style={inputStyle}
-                      required />
-                  </div>
-                  <div className='w-2xl relative '>
-                    <p className='text-gray-500'>Last Inspection date</p>
-
-                    <input
-                      placeholder=" (DD/MM/YYYY)"
-                      name='LastInspectionDate'
-                      value={formData.FireSafetyEquipmentInventory[0]?.LastInspectionDate}
-                      onChange={handleChange}
-                      style={inputStyle}
-                      required />
-
-                  </div>
-                  <div className='w-96 relative '>
-                    <p className='text-gray-500'>Next Due Date</p>
-                    <input
-                      placeholder=" (DD/MM/YYYY)"
-                      name='NextDueDate'
-                      value={formData.FireSafetyEquipmentInventory[0]?.NextDueDate}
-                      onChange={handleChange}
-                      style={inputStyle} required />
-                  </div>
-                </div>
-                <div>
-                  <p className='text-gray-500'>Condition (Good/Replace)</p>
-                  <input
-                    placeholder="e.g (Good/Replace)"
-                    name='Condition'
-                    value={formData.FireSafetyEquipmentInventory[0]?.Condition}
-                    onChange={handleChange}
-                    style={inputStyle} required />
-                </div>
-              </div>
-            </div>
+       
 
           </section>
         </div>
-          </section>
         </div>
       )
     },
-
-    // {
-    //   id: 2,
-    //   // label: 'First Aid Directory',
-    //   // icon: <Heart className="w-4 h-4" />,
-    //   content: (
-    //     <div className='container'>
-    //       <section className="mb-8 h-auto">
-
-    //         <div className="p-6 max-w-7xl mx-auto font-sans">
-    //           <h2
-    //             // style={headingStyle} 
-    //             className='text-black'
-    //             style={{ fontSize: "20px", color: '#808080' }} >B. Local Health & Emergency Referral Directory</h2>
-
-
-    //           <div className="space-y-6">
-    //             {/* Primary Health Centre */}
-    //             <div style={{ ...sectionStyle, marginBottom: "20px" }}>
-    //               <div className="flex justify-between items-center mb-4">
-    //                 <p className="font-semibold text-gray-500">Primary Health Centre</p>
-    //                 <button
-    //                   type="button"
-    //                   onClick={() => addNewEntry('primaryHealthCentre')}
-    //                   className="bg-[#8bae3f] text-white px-3 py-1 rounded text-sm hover:bg-[#8bae3f]"
-    //                   style={{ backgroundColor: "#f27f22" }}
-    //                 >
-    //                   + Add Entry
-    //                 </button>
-    //               </div>
-
-    //               {formData.LocalHealthEmergencyReferralDirectory.primaryHealthCentre?.map((item, index) => (
-    //                 <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
-    //                   <div className="flex justify-between items-center mb-3">
-    //                     <span className="text-sm text-gray-600">Entry {index + 1}</span>
-    //                     {formData.LocalHealthEmergencyReferralDirectory.primaryHealthCentre.length > 1 && (
-    //                       <button
-    //                         type="button"
-    //                         onClick={() => removeEntry('primaryHealthCentre', index)}
-    //                         className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
-    //                         style={{ backgroundColor: "#008000" }}
-    //                       >
-    //                         Remove
-    //                       </button>
-    //                     )}
-    //                   </div>
-
-    //                   <div className="flex gap-4 mb-3">
-    //                     <input
-    //                       placeholder="Name of Facility"
-    //                       style={inputStyle}
-    //                       name="facilityName"
-    //                       value={item.facilityName || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'primaryHealthCentre', index)}
-    //                       className="flex-1"
-    //                     />
-    //                     <input
-    //                       placeholder="Phone Number"
-    //                       type='text'
-    //                       name="phoneNumber"
-    //                       value={item.phoneNumber || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'primaryHealthCentre', index)}
-    //                       style={inputStyle}
-    //                       className="flex-1"
-    //                     />
-    //                     <input
-    //                       placeholder="Distance (e.g., 2.5 km)"
-    //                       name="distanceFromSchool"
-    //                       value={item.distanceFromSchool || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'primaryHealthCentre', index)}
-    //                       style={inputStyle}
-    //                       className="flex-1"
-    //                     />
-    //                   </div>
-
-    //                   <div className="flex items-center gap-6 mb-3">
-    //                     <span className="text-sm font-medium text-gray-500">24/7 Service Available?</span>
-    //                     <label className="flex items-center gap-1 cursor-pointer text-gray-500">
-    //                       <input
-    //                         type="radio"
-    //                         name={`is24x7-primaryHealthCentre-${index}`}
-    //                         value="yes"
-    //                         checked={item.is24x7 === true}
-    //                         onChange={(e) => handleServiceChange(e, 'primaryHealthCentre', index)}
-    //                         className="text-green-600 focus:ring-green-500"
-    //                       />
-    //                       Yes
-    //                     </label>
-    //                     <label className="flex items-center gap-1 cursor-pointer text-gray-500">
-    //                       <input
-    //                         type="radio"
-    //                         name={`is24x7-primaryHealthCentre-${index}`}
-    //                         value="no"
-    //                         checked={item.is24x7 === false}
-    //                         onChange={(e) => handleServiceChange(e, 'primaryHealthCentre', index)}
-    //                         className="text-green-600 focus:ring-green-500"
-    //                       />
-    //                       No
-    //                     </label>
-    //                   </div>
-
-    //                   <input
-    //                     placeholder="Remarks (optional)"
-    //                     name="remarks"
-    //                     value={item.remarks || ""}
-    //                     onChange={(e) => handleServiceChange(e, 'primaryHealthCentre', index)}
-    //                     style={inputStyle}
-    //                     className="w-full"
-    //                   />
-    //                 </div>
-    //               ))}
-    //             </div>
-
-
-    //             <div style={{ ...sectionStyle, marginBottom: "20px" }}>
-    //               <div className="flex justify-between items-center mb-4">
-    //                 <p className="font-semibold text-gray-500">Government Hospital</p>
-    //                 <button
-    //                   type="button"
-    //                   onClick={() => addNewEntry('governmentHospital')}
-    //                   className="bg-[#8bae3f] text-white px-3 py-1 rounded text-sm hover:bg-[#8bae3f]"
-    //                   style={{ backgroundColor: "#f27f22" }}
-    //                 >
-    //                   + Add Entry
-    //                 </button>
-    //               </div>
-
-    //               {formData.LocalHealthEmergencyReferralDirectory.governmentHospital?.map((item, index) => (
-    //                 <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
-    //                   <div className="flex justify-between items-center mb-3">
-    //                     <span className="text-sm text-gray-600">Entry {index + 1}</span>
-    //                     {formData.LocalHealthEmergencyReferralDirectory.governmentHospital.length > 1 && (
-    //                       <button
-    //                         type="button"
-    //                         onClick={() => removeEntry('governmentHospital', index)}
-    //                         className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
-    //                         style={{ backgroundColor: "#008000" }}
-    //                       >
-    //                         Remove
-    //                       </button>
-    //                     )}
-    //                   </div>
-
-    //                   <div className="flex gap-4 mb-3">
-    //                     <input
-    //                       placeholder="Name of Hospital"
-    //                       style={inputStyle}
-    //                       name="facilityName"
-    //                       value={item.facilityName || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'governmentHospital', index)}
-    //                       className="flex-1"
-    //                     />
-    //                     <input
-    //                       placeholder="Phone Number"
-    //                       name="phoneNumber"
-    //                       value={item.phoneNumber || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'governmentHospital', index)}
-    //                       style={inputStyle}
-    //                       className="flex-1"
-    //                     />
-    //                     <input
-    //                       placeholder="Distance (e.g., 5 km)"
-    //                       name="distanceFromSchool"
-    //                       value={item.distanceFromSchool || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'governmentHospital', index)}
-    //                       style={inputStyle}
-    //                       className="flex-1"
-    //                     />
-    //                   </div>
-
-    //                   <div className="flex items-center gap-6 mb-3">
-    //                     <span className="text-sm font-medium text-gray-500">24/7 Service Available?</span>
-    //                     <label className="flex items-center gap-1 cursor-pointer text-gray-500">
-    //                       <input
-    //                         type="radio"
-    //                         name={`is24x7-governmentHospital-${index}`}
-    //                         value="yes"
-    //                         checked={item.is24x7 === true}
-    //                         onChange={(e) => handleServiceChange(e, 'governmentHospital', index)}
-    //                         className="text-green-600 focus:ring-green-500"
-    //                       />
-    //                       Yes
-    //                     </label>
-    //                     <label className="flex items-center gap-1 cursor-pointer text-gray-500">
-    //                       <input
-    //                         type="radio"
-    //                         name={`is24x7-governmentHospital-${index}`}
-    //                         value="no"
-    //                         checked={item.is24x7 === false}
-    //                         onChange={(e) => handleServiceChange(e, 'governmentHospital', index)}
-    //                         className="text-green-600 focus:ring-green-500"
-    //                       />
-    //                       No
-    //                     </label>
-    //                   </div>
-
-    //                   <input
-    //                     placeholder="Remarks (optional)"
-    //                     name="remarks"
-    //                     value={item.remarks || ""}
-    //                     onChange={(e) => handleServiceChange(e, 'governmentHospital', index)}
-    //                     style={inputStyle}
-    //                     className="w-full"
-    //                   />
-    //                 </div>
-    //               ))}
-    //             </div>
-
-    //             {/* Private Hospital */}
-    //             <div style={{ ...sectionStyle, marginBottom: "20px" }}>
-    //               <div className="flex justify-between items-center mb-4">
-    //                 <p className="font-semibold text-gray-500">Private Hospital</p>
-    //                 <button
-    //                   type="button"
-    //                   onClick={() => addNewEntry('privateHospital')}
-    //                   className="bg-[#8bae3f] text-white px-3 py-1 rounded text-sm hover:bg-[#8bae3f]"
-    //                   style={{ backgroundColor: "#f27f22" }}
-    //                 >
-    //                   + Add Entry
-    //                 </button>
-    //               </div>
-
-    //               {formData.LocalHealthEmergencyReferralDirectory.privateHospital?.map((item, index) => (
-    //                 <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
-    //                   <div className="flex justify-between items-center mb-3">
-    //                     <span className="text-sm text-gray-600">Entry {index + 1}</span>
-    //                     {formData.LocalHealthEmergencyReferralDirectory.privateHospital.length > 1 && (
-    //                       <button
-    //                         type="button"
-    //                         onClick={() => removeEntry('privateHospital', index)}
-    //                         className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
-    //                         style={{ backgroundColor: "#008000" }}
-    //                       >
-    //                         Remove
-    //                       </button>
-    //                     )}
-    //                   </div>
-
-    //                   <div className="flex gap-4 mb-3">
-    //                     <input
-    //                       placeholder="Name of Hospital"
-    //                       style={inputStyle}
-    //                       name="facilityName"
-    //                       value={item.facilityName || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'privateHospital', index)}
-    //                       className="flex-1"
-    //                     />
-    //                     <input
-    //                       placeholder="Phone Number"
-    //                       name="phoneNumber"
-    //                       value={item.phoneNumber || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'privateHospital', index)}
-    //                       style={inputStyle}
-    //                       className="flex-1"
-    //                     />
-    //                     <input
-    //                       placeholder="Distance (e.g., 3 km)"
-    //                       name="distanceFromSchool"
-    //                       value={item.distanceFromSchool || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'privateHospital', index)}
-    //                       style={inputStyle}
-    //                       className="flex-1"
-    //                     />
-    //                   </div>
-
-    //                   <div className="flex items-center gap-6 mb-3">
-    //                     <span className="text-sm font-medium text-gray-500">24/7 Service Available?</span>
-    //                     <label className="flex items-center gap-1 cursor-pointer text-gray-500">
-    //                       <input
-    //                         type="radio"
-    //                         name={`is24x7-privateHospital-${index}`}
-    //                         value="yes"
-    //                         checked={item.is24x7 === true}
-    //                         onChange={(e) => handleServiceChange(e, 'privateHospital', index)}
-    //                         className="text-green-600 focus:ring-green-500"
-    //                       />
-    //                       Yes
-    //                     </label>
-    //                     <label className="flex items-center gap-1 cursor-pointer text-gray-500">
-    //                       <input
-    //                         type="radio"
-    //                         name={`is24x7-privateHospital-${index}`}
-    //                         value="no"
-    //                         checked={item.is24x7 === false}
-    //                         onChange={(e) => handleServiceChange(e, 'privateHospital', index)}
-    //                         className="text-green-600 focus:ring-green-500"
-    //                       />
-    //                       No
-    //                     </label>
-    //                   </div>
-
-    //                   <input
-    //                     placeholder="Remarks (optional)"
-    //                     name="remarks"
-    //                     value={item.remarks || ""}
-    //                     onChange={(e) => handleServiceChange(e, 'privateHospital', index)}
-    //                     style={inputStyle}
-    //                     className="w-full"
-    //                   />
-    //                 </div>
-    //               ))}
-    //             </div>
-
-    //             {/* Fire Department */}
-    //             <div style={{ ...sectionStyle, marginBottom: "20px" }}>
-    //               <div className="flex justify-between items-center mb-4">
-    //                 <p className="font-semibold text-gray-500">Fire Department</p>
-    //                 <button
-    //                   type="button"
-    //                   onClick={() => addNewEntry('fireDepartment')}
-    //                   className="bg-[#8bae3f] text-white px-3 py-1 rounded text-sm hover:bg-[#8bae3f]"
-    //                   style={{ backgroundColor: "#f27f22" }}
-    //                 >
-    //                   + Add Entry
-    //                 </button>
-    //               </div>
-
-    //               {formData.LocalHealthEmergencyReferralDirectory.fireDepartment?.map((item, index) => (
-    //                 <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
-    //                   <div className="flex justify-between items-center mb-3">
-    //                     <span className="text-sm text-gray-600">Entry {index + 1}</span>
-    //                     {formData.LocalHealthEmergencyReferralDirectory.fireDepartment.length > 1 && (
-    //                       <button
-    //                         type="button"
-    //                         onClick={() => removeEntry('fireDepartment', index)}
-    //                         className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
-    //                         style={{ backgroundColor: "#008000" }}
-    //                       >
-    //                         Remove
-    //                       </button>
-    //                     )}
-    //                   </div>
-
-    //                   <div className="flex gap-4 mb-3">
-    //                     <input
-    //                       placeholder="Fire Station Name"
-    //                       style={inputStyle}
-    //                       name="facilityName"
-    //                       value={item.facilityName || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'fireDepartment', index)}
-    //                       className="flex-1"
-    //                     />
-    //                     <input
-    //                       placeholder="Emergency Number"
-    //                       name="phoneNumber"
-    //                       value={item.phoneNumber || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'fireDepartment', index)}
-    //                       style={inputStyle}
-    //                       className="flex-1"
-    //                     />
-    //                     <input
-    //                       placeholder="Distance (e.g., 1.5 km)"
-    //                       name="distanceFromSchool"
-    //                       value={item.distanceFromSchool || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'fireDepartment', index)}
-    //                       style={inputStyle}
-    //                       className="flex-1"
-    //                     />
-    //                   </div>
-
-    //                   <div className="flex items-center gap-6 mb-3">
-    //                     <span className="text-sm font-medium text-gray-500">24/7 Service Available?</span>
-    //                     <label className="flex items-center gap-1 cursor-pointer text-gray-500">
-    //                       <input
-    //                         type="radio"
-    //                         name={`is24x7-fireDepartment-${index}`}
-    //                         value="yes"
-    //                         checked={item.is24x7 === true}
-    //                         onChange={(e) => handleServiceChange(e, 'fireDepartment', index)}
-    //                         className="text-green-600 focus:ring-green-500"
-    //                       />
-    //                       Yes
-    //                     </label>
-    //                     <label className="flex items-center gap-1 cursor-pointer text-gray-500">
-    //                       <input
-    //                         type="radio"
-    //                         name={`is24x7-fireDepartment-${index}`}
-    //                         value="no"
-    //                         checked={item.is24x7 === false}
-    //                         onChange={(e) => handleServiceChange(e, 'fireDepartment', index)}
-    //                         className="text-green-600 focus:ring-green-500"
-    //                       />
-    //                       No
-    //                     </label>
-    //                   </div>
-
-    //                   <input
-    //                     placeholder="Remarks (optional)"
-    //                     name="remarks"
-    //                     value={item.remarks || ""}
-    //                     onChange={(e) => handleServiceChange(e, 'fireDepartment', index)}
-    //                     style={inputStyle}
-    //                     className="w-full"
-    //                   />
-    //                 </div>
-    //               ))}
-    //             </div>
-
-    //             {/* Ambulance Service */}
-    //             <div style={{ ...sectionStyle, marginBottom: "20px" }}>
-    //               <div className="flex justify-between items-center mb-4">
-    //                 <p className="font-semibold text-gray-500">Ambulance Service</p>
-    //                 <button
-    //                   type="button"
-    //                   onClick={() => addNewEntry('ambulanceService')}
-    //                   className="bg-[#8bae3f] text-white px-3 py-1 rounded text-sm hover:bg-green-700"
-    //                   style={{ backgroundColor: "#f27f22" }}
-    //                 >
-    //                   + Add Entry
-    //                 </button>
-    //               </div>
-
-    //               {formData.LocalHealthEmergencyReferralDirectory.ambulanceService?.map((item, index) => (
-    //                 <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
-    //                   <div className="flex justify-between items-center mb-3">
-    //                     <span className="text-sm text-gray-600">Entry {index + 1}</span>
-    //                     {formData.LocalHealthEmergencyReferralDirectory.ambulanceService.length > 1 && (
-    //                       <button
-    //                         type="button"
-    //                         onClick={() => removeEntry('ambulanceService', index)}
-    //                         className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
-    //                         style={{ backgroundColor: "#008000" }}
-    //                       >
-    //                         Remove
-    //                       </button>
-    //                     )}
-    //                   </div>
-
-    //                   <div className="flex gap-4 mb-3">
-    //                     <input
-    //                       placeholder="Ambulance Service Name"
-    //                       style={inputStyle}
-    //                       name="facilityName"
-    //                       value={item.facilityName || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'ambulanceService', index)}
-    //                       className="flex-1"
-    //                     />
-    //                     <input
-    //                       placeholder="Emergency Number"
-    //                       name="phoneNumber"
-    //                       value={item.phoneNumber || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'ambulanceService', index)}
-    //                       style={inputStyle}
-    //                       className="flex-1"
-    //                     />
-    //                     <input
-    //                       placeholder="Response Time (e.g., 10 min)"
-    //                       name="distanceFromSchool"
-    //                       value={item.distanceFromSchool || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'ambulanceService', index)}
-    //                       style={inputStyle}
-    //                       className="flex-1"
-    //                     />
-    //                   </div>
-
-    //                   <div className="flex items-center gap-6 mb-3">
-    //                     <span className="text-sm font-medium text-gray-500">24/7 Service Available?</span>
-    //                     <label className="flex items-center gap-1 cursor-pointer text-gray-500">
-    //                       <input
-    //                         type="radio"
-    //                         name={`is24x7-ambulanceService-${index}`}
-    //                         value="yes"
-    //                         checked={item.is24x7 === true}
-    //                         onChange={(e) => handleServiceChange(e, 'ambulanceService', index)}
-    //                         className="text-green-600 focus:ring-green-500"
-    //                       />
-    //                       Yes
-    //                     </label>
-    //                     <label className="flex items-center gap-1 cursor-pointer text-gray-500">
-    //                       <input
-    //                         type="radio"
-    //                         name={`is24x7-ambulanceService-${index}`}
-    //                         value="no"
-    //                         checked={item.is24x7 === false}
-    //                         onChange={(e) => handleServiceChange(e, 'ambulanceService', index)}
-    //                         className="text-green-600 focus:ring-green-500"
-    //                       />
-    //                       No
-    //                     </label>
-    //                   </div>
-
-    //                   <input
-    //                     placeholder="Remarks (optional)"
-    //                     name="remarks"
-    //                     value={item.remarks || ""}
-    //                     onChange={(e) => handleServiceChange(e, 'ambulanceService', index)}
-    //                     style={inputStyle}
-    //                     className="w-full"
-    //                   />
-    //                 </div>
-    //               ))}
-    //             </div>
-
-
-    //             <div style={{ ...sectionStyle, marginBottom: "20px" }}>
-    //               <div className="flex justify-between items-center mb-4">
-    //                 <p className="font-semibold text-gray-500">NGO Helpline</p>
-    //                 <button
-    //                   type="button"
-    //                   onClick={() => addNewEntry('ngoHelpline')}
-    //                   className="bg-[#8bae3f] text-white px-3 py-1 rounded text-sm hover:bg-green-700"
-    //                   style={{ backgroundColor: "#f27f22" }}
-    //                 >
-    //                   + Add Entry
-    //                 </button>
-    //               </div>
-
-    //               {formData.LocalHealthEmergencyReferralDirectory.ngoHelpline?.map((item, index) => (
-    //                 <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
-    //                   <div className="flex justify-between items-center mb-3">
-    //                     <span className="text-sm text-gray-600">Entry {index + 1}</span>
-    //                     {formData.LocalHealthEmergencyReferralDirectory.ngoHelpline.length > 1 && (
-    //                       <button
-    //                         type="button"
-    //                         onClick={() => removeEntry('ngoHelpline', index)}
-    //                         className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
-    //                         style={{ backgroundColor: "#008000" }}
-    //                       >
-    //                         Remove
-    //                       </button>
-    //                     )}
-    //                   </div>
-
-    //                   <div className="flex gap-4 mb-3">
-    //                     <input
-    //                       placeholder="NGO Name"
-    //                       style={inputStyle}
-    //                       name="facilityName"
-    //                       value={item.facilityName || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'ngoHelpline', index)}
-    //                       className="flex-1"
-    //                     />
-    //                     <input
-    //                       placeholder="Helpline Number"
-    //                       name="phoneNumber"
-    //                       value={item.phoneNumber || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'ngoHelpline', index)}
-    //                       style={inputStyle}
-    //                       className="flex-1"
-    //                     />
-    //                     <input
-    //                       placeholder="Coverage Area"
-    //                       name="distanceFromSchool"
-    //                       value={item.distanceFromSchool || ""}
-    //                       onChange={(e) => handleServiceChange(e, 'ngoHelpline', index)}
-    //                       style={inputStyle}
-    //                       className="flex-1"
-    //                     />
-    //                   </div>
-
-    //                   <div className="flex items-center gap-6 mb-3">
-    //                     <span className="text-sm font-medium text-gray-500">24/7 Service Available?</span>
-    //                     <label className="flex items-center gap-1 cursor-pointer text-gray-500">
-    //                       <input
-    //                         type="radio"
-    //                         name={`is24x7-ngoHelpline-${index}`}
-    //                         value="yes"
-    //                         checked={item.is24x7 === true}
-    //                         onChange={(e) => handleServiceChange(e, 'ngoHelpline', index)}
-    //                         className="text-green-600 focus:ring-green-500"
-    //                       />
-    //                       Yes
-    //                     </label>
-    //                     <label className="flex items-center gap-1 cursor-pointer text-gray-500">
-    //                       <input
-    //                         type="radio"
-    //                         name={`is24x7-ngoHelpline-${index}`}
-    //                         value="no"
-    //                         checked={item.is24x7 === false}
-    //                         onChange={(e) => handleServiceChange(e, 'ngoHelpline', index)}
-    //                         className="text-green-600 focus:ring-green-500"
-    //                       />
-    //                       No
-    //                     </label>
-    //                   </div>
-
-    //                   <input
-    //                     placeholder="Services provided (e.g., Mental health, Crisis support)"
-    //                     name="remarks"
-    //                     value={item.remarks || ""}
-    //                     onChange={(e) => handleServiceChange(e, 'ngoHelpline', index)}
-    //                     style={inputStyle}
-    //                     className="w-full"
-    //                   />
-    //                 </div>
-    //               ))}
-    //             </div>
-    //           </div>
-    //         </div>
-    //         <h2
-    //           // style={headingStyle}
-    //           style={{ fontSize: "20px", color: '#808080' }}>
-    //           4. Resource & Equipment Log (Fire Safety Focused)
-    //         </h2>
-    //         <h3 className="text-gray-500 font-semibold mb-3 text-sm" style={{ fontSize: "20px", color: '#808080' }}>
-    //           A. Fire Safety Equipment Inventory
-    //         </h3>
-
-    //         <div className="p-6 max-w-7xl mx-auto">
-    //           <div className="mb-4 flex justify-between items-center">
-    //             <button
-    //               onClick={addNewRow}
-    //               className="bg-[#8bae3f] text-white px-3 py-1 rounded text-sm hover:bg-[#8bae3f]"
-    //               style={{ backgroundColor: "#f27f22" }}
-    //             >
-    //               Add New Item
-    //             </button>
-    //           </div>
-
-    //           {formData.ResourceAndEquipmentLog.map((log, index) => (
-    //             <div key={index} style={sectionStyle} className="mb-6">
-    //               <div className='flex flex-col'>
-    //                 <div className='flex justify-between items-center mb-4'>
-    //                   {/* <h3 className="text-lg font-semibold text-gray-700">Item #{index + 1}</h3>f */}
-    //                   {formData.ResourceAndEquipmentLog.length > 1 && (
-    //                     <button
-    //                       onClick={() => removeRow(index)}
-    //                       className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors"
-    //                       style={{ backgroundColor: "#008000" }}
-    //                     >
-    //                       Remove
-    //                     </button>
-    //                   )}
-    //                 </div>
-
-    //                 <p className='text-gray-500'>Item</p>
-    //                 <input
-    //                   placeholder="Enter item name"
-    //                   style={inputStyle}
-    //                   name={`ResourceAndEquipmentLog[${index}].item`}
-    //                   value={log.item}
-    //                   onChange={handleChange}
-    //                   required
-    //                 />
-
-    //                 <div className='flex gap-8'>
-    //                   <div className='w-xl'>
-    //                     <p className='text-gray-500'>Location</p>
-    //                     <input
-    //                       placeholder="Enter location"
-    //                       name={`ResourceAndEquipmentLog[${index}].location`}
-    //                       value={log.location}
-    //                       onChange={handleChange}
-    //                       style={inputStyle}
-    //                       required
-    //                     />
-    //                   </div>
-    //                   <div className='w-xl relative '>
-    //                     <p className='text-gray-500'>Type/Specification</p>
-    //                     <input
-    //                       placeholder="Enter type/specification"
-    //                       name={`ResourceAndEquipmentLog[${index}].typeSpecification`}
-    //                       value={log.typeSpecification}
-    //                       onChange={handleChange}
-    //                       style={inputStyle}
-    //                       required
-    //                     />
-    //                   </div>
-    //                 </div>
-
-    //                 <div className='flex gap-8'>
-    //                   <div className='w-xl'>
-    //                     <p className='text-gray-500'>Quantity</p>
-    //                     <input
-    //                       type="number"
-    //                       placeholder="Enter quantity"
-    //                       name={`ResourceAndEquipmentLog[${index}].quantity`}
-    //                       value={log.quantity}
-    //                       onChange={handleChange}
-    //                       style={inputStyle}
-    //                       required
-    //                     />
-    //                   </div>
-    //                   <div className='w-2xl relative '>
-    //                     <p className='text-gray-500'>Last Inspection Date</p>
-    //                     <input
-    //                       type="date"
-    //                       name={`ResourceAndEquipmentLog[${index}].lastInspectionDate`}
-    //                       value={log.lastInspectionDate || ""}
-    //                       onChange={handleChange}
-    //                       style={inputStyle}
-    //                     />
-    //                   </div>
-    //                   <div className='w-96 relative '>
-    //                     <p className='text-gray-500'>Next Due Date</p>
-    //                     <input
-    //                       type="date"
-    //                       name={`ResourceAndEquipmentLog[${index}].nextDueDate`}
-    //                       value={log.nextDueDate || ""}
-    //                       onChange={handleChange}
-    //                       style={inputStyle}
-    //                     />
-    //                   </div>
-    //                 </div>
-
-    //                 <div className='flex gap-8'>
-    //                   <div className='w-xl'>
-    //                     <p className='text-gray-500'>Condition (Good/Replace)</p>
-    //                     <select
-    //                       name={`ResourceAndEquipmentLog[${index}].condition`}
-    //                       value={log.condition}
-    //                       onChange={handleChange}
-    //                       style={inputStyle}
-    //                       className="cursor-pointer"
-    //                     >
-    //                       <option value="">Select condition</option>
-    //                       <option value="Good">Good</option>
-    //                       <option value="Replace">Replace</option>
-    //                     </select>
-    //                   </div>
-    //                   <div className='w-2xl relative '>
-    //                     <p className='text-gray-500'>Remarks</p>
-    //                     <input
-    //                       placeholder="Enter remarks"
-    //                       name={`ResourceAndEquipmentLog[${index}].remarks`}
-    //                       value={log.remarks}
-    //                       onChange={handleChange}
-    //                       style={inputStyle}
-    //                     />
-    //                   </div>
-    //                 </div>
-    //               </div>
-    //             </div>
-    //           ))}
-    //         </div>
-    //         {/* === Section: Fire Safety Equipment Inventory === */}
-    //         <h2 style={headingStyle}>Fire Safety Equipment Inventory</h2>
-    //         <div style={sectionStyle}>
-    //           <div className='flex flex-col'>
-    //             <p className='text-gray-500'>Name</p>
-    //             <input
-    //               placeholder="eg.Piyush"
-    //               style={inputStyle}
-    //               name='Name'
-    //               value={formData.FireSafetyEquipmentInventory[0]?.Name}
-    //               onChange={handleChange}
-    //               required />
-    //             <div className='flex gap-8'>
-    //               <div className='w-xl'>
-    //                 <p className='text-gray-500'>Location</p>
-    //                 <input
-    //                   placeholder="eg.Floor"
-    //                   name='Location'
-    //                   value={formData.FireSafetyEquipmentInventory[0]?.Location}
-    //                   onChange={handleChange}
-    //                   style={inputStyle} required />
-    //               </div>
-
-    //               <div className='w-xl relative '>
-    //                 <p className='text-gray-500'>Type/Specification</p>
-    //                 <input
-    //                   placeholder="Type/Specification (e.g., Ordinary combustibles)"
-    //                   name='TypeAndSpecification'
-    //                   value={formData.FireSafetyEquipmentInventory[0]?.TypeAndSpecification}
-    //                   onChange={handleChange}
-    //                   style={inputStyle}
-    //                   required />
-    //               </div>
-    //             </div>
-    //             <div className='flex gap-8'>
-    //               <div className='w-xl'>
-    //                 <p className='text-gray-500'>Quantity</p>
-    //                 <input
-    //                   placeholder="(e.g., 5L)"
-    //                   name='Quantity'
-    //                   value={formData.FireSafetyEquipmentInventory[0]?.Quantity}
-    //                   onChange={handleChange}
-    //                   style={inputStyle}
-    //                   required />
-    //               </div>
-    //               <div className='w-2xl relative '>
-    //                 <p className='text-gray-500'>Last Inspection date</p>
-
-    //                 <input
-    //                   placeholder=" (DD/MM/YYYY)"
-    //                   name='LastInspectionDate'
-    //                   value={formData.FireSafetyEquipmentInventory[0]?.LastInspectionDate}
-    //                   onChange={handleChange}
-    //                   style={inputStyle}
-    //                   required />
-
-    //               </div>
-    //               <div className='w-96 relative '>
-    //                 <p className='text-gray-500'>Next Due Date</p>
-    //                 <input
-    //                   placeholder=" (DD/MM/YYYY)"
-    //                   name='NextDueDate'
-    //                   value={formData.FireSafetyEquipmentInventory[0]?.NextDueDate}
-    //                   onChange={handleChange}
-    //                   style={inputStyle} required />
-    //               </div>
-    //             </div>
-    //             <div>
-    //               <p className='text-gray-500'>Condition (Good/Replace)</p>
-    //               <input
-    //                 placeholder="e.g (Good/Replace)"
-    //                 name='Condition'
-    //                 value={formData.FireSafetyEquipmentInventory[0]?.Condition}
-    //                 onChange={handleChange}
-    //                 style={inputStyle} required />
-    //             </div>
-    //           </div>
-    //         </div>
-
-    //       </section>
-    //     </div>
-    //   )
-    // },
-
     {
-      id: 3,
-      // label: 'First Aid Directory',
-      // icon: <Heart className="w-4 h-4" />,
-      content: (
-        <div className='container'>
-          <section className="mb-8 h-auto">
-
-
-            <h2 style={headingStyle}>Fire Drill Log</h2>
+      id:5,
+      label:"Fire Drill Log",
+      content:(
+       <div className='container'>
+          <h2 style={headingStyle}>Fire Drill Log</h2>
        <div className="bg-white rounded-lg shadow-md p-6 max-w-6xl mx-auto">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Schedule Fire Drill</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2" style={{fontSize:"20px", color:"#ffb673"}}>Schedule Fire Drill</h2>
         <p className="text-gray-600">
           Select a date and time slot for your fire drill. Each drill is 30 minutes long with automatic 30-minute gaps between drills.
         </p>
@@ -4768,10 +3933,15 @@ const handleBooking = () => {
       {selectedDate && (
         <>
           {/* Time Slot Selection */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="mb-6 f">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4"style={{fontSize:"16px"}}>
               <Clock className="inline h-5 w-5 mr-2" />
-              Available Time Slots for {selectedDate}
+              Available Time Slots for 
+              <div style={{color:"#f27f22",display:"flex"}}>
+
+                {selectedDate}
+                </div>
+                
             </h3>
             
             {Object.entries(groupedSlots).map(([period, slots]) => (
@@ -4871,17 +4041,19 @@ const handleBooking = () => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-4">
+          <div className="flex gap-4" style={{color:"#f27f22"}}>
             <button
               onClick={handleBooking}
               disabled={!selectedStartTime || !selectedEndTime || isSubmitting}
               className={`
                 px-6 py-3 rounded-lg font-medium transition-all duration-200
                 ${selectedStartTime && selectedEndTime && !isSubmitting
-                  ? 'bg-orange-500 text-black border-2 border-red-900 rounded-2xl hover:bg-orange-600 shadow-md hover:shadow-lg '
-                  : 'bg-gray-400  text-black cursor-not-allowed'
+                  ? 'bg-#f27f22 text-black border-2 border-red-900 rounded-2xl hover:bg-orange-600 shadow-md hover:shadow-lg '
+                
+                  : 'bg-#f27f22  text-black cursor-not-allowed'
                 }
               `}
+              style={{color:"#f27f22"}}
             >
               {isSubmitting ? 'Saving...' : 'Book Drill Slot'}
             </button>
@@ -4897,6 +4069,315 @@ const handleBooking = () => {
               Clear Selection
             </button>
           </div>
+
+              <div>
+  <p className="text-gray-500 mb-2">Type of Drill</p>
+  <div className="flex flex-col gap-2">
+    {["Announced", "Unannounced", "Mock", "Evacuation"].map((drill) => (
+      <label key={drill} className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          name="FireDrillLog.0.typeOfDrill"
+          value={drill}
+          checked={formData.FireDrillLog[0]?.typeOfDrill?.includes(drill)}
+          onChange={handleChange}
+          className="h-4 w-4"
+        />
+        <span className="text-gray-700">{drill}</span>
+      </label>
+    ))}
+  </div>
+</div>
+
+
+            <div className="flex gap-4">
+              <div className="w-xl">
+                <p className="text-gray-500">No. of Students Participated (Boys)</p>
+                <input
+                  type="number"
+                  placeholder="e.g 15"
+                  name='participants_students_boys'
+                  value={formData.FireDrillLog[0]?.participants.students.boys || 0}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  required
+                />
+              </div>
+              <div className="w-2xl">
+                <p className="text-gray-500">No. of Students Participated (Girls)</p>
+                <input
+                  type="number"
+                  placeholder="e.g 20"
+                  name='participants_students_girls'
+                  value={formData.FireDrillLog[0]?.participants.students.girls || 0}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <p className="text-gray-500">No. of Staff Participated (Teaching)</p>
+              <input
+                type="number"
+                placeholder="e.g 5"
+                name='participants_staff_teaching'
+                value={formData.FireDrillLog[0]?.participants.staff.teaching || 0}
+                onChange={handleChange}
+                style={inputStyle}
+                required
+              />
+              <p className="text-gray-500">No. of Staff Participated (Non-Teaching)</p>
+              <input
+                type="number"
+                placeholder="e.g 3"
+                name='participants_staff_nonTeaching'
+                value={formData.FireDrillLog[0]?.participants.staff.nonTeaching || 0}
+                onChange={handleChange}
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <div className="w-2xl">
+                <p className="text-gray-500">No. of Staff Participated (Admin)</p>
+                <input
+                  type="number"
+                  placeholder="e.g 2"
+                  name='participants_staff_admin'
+                  value={formData.FireDrillLog[0]?.participants.staff.admin || 0}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  required
+                />
+              </div>
+              <div className="w-xl">
+                <p className="text-gray-500">No. of Staff Participated (Support Staff)</p>
+                <input
+                  type="number"
+                  placeholder="e.g 4"
+                  name='participants_staff_support'
+                  value={formData.FireDrillLog[0]?.participants.staff.support || 0}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <p className="text-gray-500">Time Taken to Evacuate (in min.)</p>
+              <input
+                type="number"
+                placeholder="e.g 3"
+                name='FireDrillLog.0.timeTakenToEvacuate'
+                value={formData.FireDrillLog[0]?.timeTakenToEvacuate || 0}
+                onChange={handleChange}
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            {/* Issues Encountered */}
+            <div>
+              <p className="text-gray-500">Issues Encountered</p>
+              <select
+                style={inputStyle}
+                name='FireDrillLog.0.issuesEncountered'
+                value={formData.FireDrillLog[0]?.issuesEncountered || ''}
+                onChange={handleChange}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-gray-500"
+                required
+              >
+                <option value="">Select an issue</option>
+                <option value="panic">Panic</option>
+                <option value="blocked-exit">Blocked Exit</option>
+                <option value="late-alarm">Late Alarm</option>
+                <option value="slow-evacuation">Slow Evacuation</option>
+                <option value="student-missing">Student Missing</option>
+                <option value="none">No Issues</option>
+                <option value="other">Other</option>
+              </select>
+
+              <div className="flex flex-col gap-2 mt-4">
+                <p className="text-gray-500">
+                  Disabled/Assisted Students Evacuated
+                </p>
+
+                <select
+                  style={inputStyle}
+                  name='FireDrillLog.0.disabledAssistedStudentsEvacuated'
+                  value={formData.FireDrillLog[0]?.disabledAssistedStudentsEvacuated || ''}
+                  onChange={handleChange}
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-gray-500"
+                >
+                  <option value="">Select</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                  <option value="n/a">Not Applicable</option>
+                </select>
+
+                <input
+                  placeholder="Enter comments (if any)"
+                  style={inputStyle}
+                  name='FireDrillLog.0.comments'
+                  value={formData.FireDrillLog[0]?.comments || ''}
+                  onChange={handleChange}
+                  className="w-full px-2 py-1 border border-gray-300 rounded"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 mt-4">
+                <p className="text-gray-500">Fire Safety Equipment</p>
+
+                <div className="flex flex-col gap-1 px-2">
+                  <label className="flex items-center gap-2 text-gray-500">
+                    <input
+                      type="checkbox"
+                      name='fireSafetyEquipment_alarm'
+                      checked={formData.FireDrillLog[0]?.fireSafetyEquipment.alarm || false}
+                      onChange={handleChange}
+                      className="h-4 w-4 border-gray-300 rounded"
+                    />
+                    Alarm
+                  </label>
+
+                  <label className="flex items-center gap-2 text-gray-500">
+                    <input
+                      type="checkbox"
+                      name='fireSafetyEquipment_fireExtinguisher'
+                      checked={formData.FireDrillLog[0]?.fireSafetyEquipment.fireExtinguisher || false}
+                      onChange={handleChange}
+                      className="h-4 w-4 border-gray-300 rounded"
+                    />
+                    Fire Extinguisher
+                  </label>
+
+                  <label className="flex items-center gap-2 text-gray-500">
+                    <input
+                      type="checkbox"
+                      name='fireSafetyEquipment_megaphone'
+                      checked={formData.FireDrillLog[0]?.fireSafetyEquipment.megaphone || false}
+                      onChange={handleChange}
+                      className="h-4 w-4 border-gray-300 rounded"
+                    />
+                    Megaphone
+                  </label>
+
+                  <label className="flex items-center gap-2 text-gray-500">
+                    <input
+                      type="checkbox"
+                      name='fireSafetyEquipment_fireHose'
+                      checked={formData.FireDrillLog[0]?.fireSafetyEquipment.fireHose || false}
+                      onChange={handleChange}
+                      className="h-4 w-4 border-gray-300 rounded"
+                    />
+                    Fire Hose
+                  </label>
+
+                  <label className="flex items-center gap-2 text-gray-500">
+                    <input
+                      type="checkbox"
+                      name='fireSafetyEquipment_sprinklerSystem'
+                      checked={formData.FireDrillLog[0]?.fireSafetyEquipment.sprinklerSystem || false}
+                      onChange={handleChange}
+                      className="h-4 w-4 border-gray-300 rounded"
+                    />
+                    Sprinkler System
+                  </label>
+
+                  <label className="flex items-center gap-2 text-gray-500">
+                    <input
+                      type="checkbox"
+                      name='fireSafetyEquipment_other'
+                      checked={formData.FireDrillLog[0]?.fireSafetyEquipment.other || false}
+                      onChange={handleChange}
+                      className="h-4 w-4 border-gray-300 rounded"
+                    />
+                    Other
+                  </label>
+                </div>
+
+                <input
+                  placeholder="Enter details or specify 'Other'"
+                  style={inputStyle}
+                  name='fireSafetyEquipment_otherDetails'
+                  value={formData.FireDrillLog[0]?.fireSafetyEquipment.otherDetails || ''}
+                  onChange={handleChange}
+                  className="w-full px-2 py-1 border border-gray-300 rounded"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 mt-4">
+                <p className="text-gray-500">Observations from Safety Officer</p>
+                <textarea
+                  placeholder="Enter observations here..."
+                  style={{ ...inputStyle, minHeight: "100px" }}
+                  name='FireDrillLog.0.observationsFromSafetyOfficer'
+                  value={formData.FireDrillLog[0]?.observationsFromSafetyOfficer || ''}
+                  onChange={handleChange}
+                  className="w-full px-2 py-1 border border-gray-300 rounded resize-none"
+                  required
+                ></textarea>
+              </div>
+
+              <div className="flex flex-col gap-2 mt-4">
+                <p className="text-gray-500">
+                  Suggestions / Corrective Actions Needed
+                </p>
+                <textarea
+                  placeholder="Enter suggestions or corrective actions..."
+                  style={{ ...inputStyle, minHeight: "100px" }}
+                  name='FireDrillLog.0.correctiveActions'
+                  value={formData.FireDrillLog[0]?.correctiveActions || ''}
+                  onChange={handleChange}
+                  className="w-full px-2 py-1 border border-gray-300 rounded resize-none"
+                ></textarea>
+              </div>
+
+              <div className="mt-4">
+                <p className="text-gray-500">Drill Conducted By (Name of Coordinators)</p>
+                <input
+                  placeholder="e.g John Doe, Jane Smith"
+                  name='FireDrillLog.0.drillConductedBy'
+                  value={formData.FireDrillLog[0]?.drillConductedBy || ''}
+                  onChange={handleChange}
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4 mt-6">
+              <p className="text-gray-500">Signature and Date</p>
+
+              <div className="flex flex-col">
+                <label className="text-gray-500 text-sm mb-1">Name & Signature</label>
+                <input
+                  placeholder="Enter name"
+                  name='signatureAndDate_name'
+                  value={formData.FireDrillLog[0]?.signatureAndDate.name || ''}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  className="w-full px-2 py-1 border border-gray-300 rounded"
+                  required
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-gray-500 text-sm mb-1">Date</label>
+                <input
+                  type="date"
+                  name='signatureAndDate_date'
+                  value={formData.FireDrillLog[0]?.signatureAndDate.date || ''}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  className="w-full px-2 py-1 border border-gray-300 rounded"
+                  required
+                />
+              </div>
+            </div>
 
           {/* Debug: Show current form data */}
           {/* <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
@@ -4921,6 +4402,111 @@ const handleBooking = () => {
         </div>
       </div> */}
     </div>
+       </div> 
+      )
+    },
+    {
+      id:6,
+      label:"Resources and Equipment Log (Fire Safety log)",
+      content:(
+        <div className='container'>
+     <h2
+              // style={headingStyle}
+              style={{ fontSize: "16px", color: '#ffb673' }}>
+              4. Resource & Equipment Log (Fire Safety Focused)
+            </h2>
+            <h3 className="text-gray-500 font-semibold mb-3 text-sm" style={{ fontSize: "16px", color: '#808080' }}>
+              A. Fire Safety Equipment Inventory
+            </h3>
+
+           
+            {/* === Section: Fire Safety Equipment Inventory === */}
+            <h2 style={headingStyle}>Fire Safety Equipment Inventory</h2>
+            <div style={sectionStyle}>
+              <div className='flex flex-col'>
+                <p className='text-gray-500'>Name</p>
+                <input
+                  placeholder="eg.Piyush"
+                  style={inputStyle}
+                  name='Name'
+                  value={formData.FireSafetyEquipmentInventory[0]?.Name}
+                  onChange={handleChange}
+                  required />
+                <div className='flex gap-8'>
+                  <div className='w-xl'>
+                    <p className='text-gray-500'>Location</p>
+                    <input
+                      placeholder="eg.Floor"
+                      name='Location'
+                      value={formData.FireSafetyEquipmentInventory[0]?.Location}
+                      onChange={handleChange}
+                      style={inputStyle} required />
+                  </div>
+
+                  <div className='w-xl relative '>
+                    <p className='text-gray-500'>Type/Specification</p>
+                    <input
+                      placeholder="Type/Specification (e.g., Ordinary combustibles)"
+                      name='TypeAndSpecification'
+                      value={formData.FireSafetyEquipmentInventory[0]?.TypeAndSpecification}
+                      onChange={handleChange}
+                      style={inputStyle}
+                      required />
+                  </div>
+                </div>
+                <div className='flex gap-8'>
+                  <div className='w-xl'>
+                    <p className='text-gray-500'>Quantity</p>
+                    <input
+                      placeholder="(e.g., 5L)"
+                      name='Quantity'
+                      value={formData.FireSafetyEquipmentInventory[0]?.Quantity}
+                      onChange={handleChange}
+                      style={inputStyle}
+                      required />
+                  </div>
+                  <div className='w-2xl relative '>
+                    <p className='text-gray-500'>Last Inspection date</p>
+
+                    <input
+                      placeholder=" (DD/MM/YYYY)"
+                      name='LastInspectionDate'
+                      value={formData.FireSafetyEquipmentInventory[0]?.LastInspectionDate}
+                      onChange={handleChange}
+                      style={inputStyle}
+                      required />
+
+                  </div>
+                  <div className='w-96 relative '>
+                    <p className='text-gray-500'>Next Due Date</p>
+                    <input
+                      placeholder=" (DD/MM/YYYY)"
+                      name='NextDueDate'
+                      value={formData.FireSafetyEquipmentInventory[0]?.NextDueDate}
+                      onChange={handleChange}
+                      style={inputStyle} required />
+                  </div>
+                </div>
+                <div>
+                  <p className='text-gray-500'>Condition (Good/Replace)</p>
+                  <input
+                    placeholder="e.g (Good/Replace)"
+                    name='Condition'
+                    value={formData.FireSafetyEquipmentInventory[0]?.Condition}
+                    onChange={handleChange}
+                    style={inputStyle} required />
+                </div>
+              </div>
+            </div>
+        </div>
+      )
+    },
+    {
+      id:7,
+      label:"Reporting and Documentation: Recovery of Damaged/Destroyed Building",
+      content:(
+        <div className='container'>
+                
             <div>
               <h2 style={headingStyle}>Reporting and Documentation: Recovery of Damaged/Destroyed Building</h2>
               <div style={sectionStyle}>
@@ -4993,114 +4579,15 @@ const handleBooking = () => {
                 </div>
               </div>
             </div>
-            <div>
-              <h2 style={headingStyle}>Reporting and Documentation: Recovery of Equipment/Furniture</h2>
-              <div style={sectionStyle}>
-                <div className='flex gap-4'>
-                  <div className='w-2xl'>
-                    <p className='text-gray-500'>Damaged/Destroyed Equipment/Furniture</p>
-                    <input
-                      placeholder="e.g, Damaged/Destroyed Equipment/Furniture"
-                      name='RecoveryAndEquipmentFurniture.0.damagedDestroyedEquipmentFurniture'
-                      value={formData.RecoveryAndEquipmentFurniture[0]?.damagedDestroyedEquipmentFurniture || ''}
-                      onChange={handleChange}
-                      style={inputStyle}
-                      required
-                    />
-                  </div>
-                  <div className='w-2xl'>
-                    <p className='text-gray-500'>Recovery Measures</p>
-                    <input
-                      placeholder="e.g, Recovery Measures"
-                      name='RecoveryAndEquipmentFurniture.0.recoveryMeasures'
-                      value={formData.RecoveryAndEquipmentFurniture[0]?.recoveryMeasures || ''}
-                      onChange={handleChange}
-                      style={inputStyle}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className='flex gap-4'>
-                  <div className='w-2xl'>
-                    <p className='text-gray-500'>Funding Source</p>
-                    <input
-                      placeholder="Funding Source"
-                      name='RecoveryAndEquipmentFurniture.0.fundingSource'
-                      value={formData.RecoveryAndEquipmentFurniture[0]?.fundingSource || ''}
-                      onChange={handleChange}
-                      style={inputStyle}
-                      required
-                    />
-                  </div>
-                  <div className='w-2xl'>
-                    <p className='text-gray-500'>Implementing Agency</p>
-                    <input
-                      placeholder="Implementing Agency"
-                      name='RecoveryAndEquipmentFurniture.0.implementingAgency'
-                      value={formData.RecoveryAndEquipmentFurniture[0]?.implementingAgency || ''}
-                      onChange={handleChange}
-                      style={inputStyle}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className='flex gap-4'>
-                  <div className='w-2xl'>
-                    <p className='text-gray-500'>Tentative Duration (Months)</p>
-                    <input
-                      type="number"
-                      placeholder="Tentative Duration (Months)"
-                      name='RecoveryAndEquipmentFurniture.0.tentativeDurationMonths'
-                      value={formData.RecoveryAndEquipmentFurniture[0]?.tentativeDurationMonths || 0}
-                      onChange={handleChange}
-                      style={inputStyle}
-                      required
-                    />
-                  </div>
-                  <div className='w-2xl'>
-                    <p className='text-gray-500'>Budget</p>
-                    <input
-                      type="number"
-                      placeholder="Budget"
-                      name='RecoveryAndEquipmentFurniture.0.budget'
-                      value={formData.RecoveryAndEquipmentFurniture[0]?.budget || 0}
-                      onChange={handleChange}
-                      style={inputStyle}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className='w-2xl'>
-                  <p className='text-gray-500'>Responsible Officer</p>
-                  <input
-                    placeholder="Responsible Officer"
-                    name='RecoveryAndEquipmentFurniture.0.responsibleOfficer'
-                    value={formData.RecoveryAndEquipmentFurniture[0]?.responsibleOfficer || ''}
-                    onChange={handleChange}
-                    style={inputStyle}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
         </div>
       )
     },
     {
-      id: 4,
-      // label: 'First Aid Directory',
-      // icon: <Heart className="w-4 h-4" />,
-      content: (
+      id:8,
+      label:"Functioning of Education",
+      content:(
         <div className='container'>
-          <section className="mb-8 h-auto">
-
-
-
-            <h2 style={headingStyle}>Functioning of Education</h2>
+          <h2 style={headingStyle}>Functioning of Education</h2>
             <div style={sectionStyle}>
               <div className='flex gap-4'>
                 <div className='w-2xl'>
@@ -5145,7 +4632,15 @@ const handleBooking = () => {
 
 
             </div>
-            <h2 style={headingStyle}>Monthly/Quarterly Checklist Reviews</h2>
+        </div>
+      )
+    },
+    {
+      id:9,
+      label:"Monthly CheckList Review",
+      content:(
+        <div className='container'>
+           <h2 style={headingStyle}>Monthly/Quarterly Checklist Reviews</h2>
             <div style={sectionStyle}>
               <div className="flex gap-4 mb-4">
                 <div className="w-2xl">
@@ -5247,88 +4742,15 @@ const handleBooking = () => {
                 />
               </div>
             </div>
-            <h2 style={headingStyle}>Plan Updation Cycle (Every 6 months or post-incident)</h2>
-            <div style={sectionStyle}>
-              <div className="mb-4">
-                <p className="text-gray-500">Version/Date</p>
-                <input
-                  type="date"
-                  placeholder="Version/Date (e.g., 01/01/2025)"
-                  name='PlanUpdationCycle.0.versionDate'
-                  value={formData.PlanUpdationCycle[0]?.versionDate || ''}
-                  onChange={handleChange}
-                  style={inputStyle}
-                  className="text-gray-500"
-                  required
-                />
-              </div>
-
-              <div className='flex gap-4 mb-4'>
-                <div className="flex-1">
-                  <p className="text-gray-500">Update Trigger</p>
-                  <input
-                    placeholder="Update Trigger (e.g., lack of water tanker)"
-                    name='PlanUpdationCycle.0.updateTrigger'
-                    value={formData.PlanUpdationCycle[0]?.updateTrigger || ''}
-                    onChange={handleChange}
-                    style={inputStyle}
-                    required
-                  />
-                </div>
-                <div className="flex-1">
-                  <p className="text-gray-500">Key Changes Made</p>
-                  <input
-                    placeholder="Key Changes Made (e.g., changed water tanker)"
-                    name='PlanUpdationCycle.0.keyChangesMade'
-                    value={formData.PlanUpdationCycle[0]?.keyChangesMade || ''}
-                    onChange={handleChange}
-                    style={inputStyle}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <p className="text-gray-500">Reviewed By</p>
-                <input
-                  placeholder="Reviewed By (e.g., Police)"
-                  name='PlanUpdationCycle.0.reviewedBy'
-                  value={formData.PlanUpdationCycle[0]?.reviewedBy || ''}
-                  onChange={handleChange}
-                  style={inputStyle}
-                  required
-                />
-              </div>
-
-              <div>
-                <p className="text-gray-500">Next Scheduled Update</p>
-                <input
-                  type="date"
-                  name='PlanUpdationCycle.0.nextScheduledUpdate'
-                  value={formData.PlanUpdationCycle[0]?.nextScheduledUpdate || ''}
-                  onChange={handleChange}
-                  placeholder="Next Scheduled Update (e.g., 08/08/2026)"
-                  style={inputStyle}
-                  className="text-gray-500"
-                  required
-                />
-              </div>
-            </div>
-
-
-          </section>
         </div>
       )
     },
     {
-      id: 5,
-      // label: 'First Aid Directory',
-      // icon: <Heart className="w-4 h-4" />,
-      content: (
+      id:10,
+      label:"Feedback Mechanism & Community Validation",
+      content:(
         <div className='container'>
-          <div className='container'>
-            <section className="mb-8 h-auto">
-              <h2 style={headingStyle}>Feedback Mechanism & Community Validation</h2>
+           <h2 style={headingStyle}>Feedback Mechanism & Community Validation</h2>
               <div style={sectionStyle}>
                 <label htmlFor="Feedback source">Feedback Source </label>
                 <input
@@ -5367,7 +4789,15 @@ const handleBooking = () => {
                   onChange={handleChange}
                   style={inputStyle} required />
               </div>
-              <h2 style={headingStyle}>Psychological Recovery</h2>
+        </div>
+      )
+    },
+    {
+      id:11,
+      label:"Psychological Recovery",
+      content:(
+        <div className='container'>
+ <h2 style={headingStyle}>Psychological Recovery</h2>
               <div style={sectionStyle}>
                 <div className="mb-4">
                   <p className="text-gray-500" style={{}}>No. of Students</p>
@@ -5446,7 +4876,194 @@ const handleBooking = () => {
                   />
                 </div>
               </div>
-              <h2 style={headingStyle}>Team for Students with Special needs (IF CHILDREN ARE THERE)</h2>
+        </div>
+      )
+    }
+       
+
+  
+,
+{
+  id:12,
+  label:"Reporting and Documentation",
+  content:(
+    <div className='container'>
+        <h2 style={headingStyle}>Reporting and Documentation: Recovery of Equipment/Furniture</h2>
+              <div style={sectionStyle}>
+                <div className='flex gap-4'>
+                  <div className='w-2xl'>
+                    <p className='text-gray-500'>Damaged/Destroyed Equipment/Furniture</p>
+                    <input
+                      placeholder="e.g, Damaged/Destroyed Equipment/Furniture"
+                      name='RecoveryAndEquipmentFurniture.0.damagedDestroyedEquipmentFurniture'
+                      value={formData.RecoveryAndEquipmentFurniture[0]?.damagedDestroyedEquipmentFurniture || ''}
+                      onChange={handleChange}
+                      style={inputStyle}
+                      required
+                    />
+                  </div>
+                  <div className='w-2xl'>
+                    <p className='text-gray-500'>Recovery Measures</p>
+                    <input
+                      placeholder="e.g, Recovery Measures"
+                      name='RecoveryAndEquipmentFurniture.0.recoveryMeasures'
+                      value={formData.RecoveryAndEquipmentFurniture[0]?.recoveryMeasures || ''}
+                      onChange={handleChange}
+                      style={inputStyle}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className='flex gap-4'>
+                  <div className='w-2xl'>
+                    <p className='text-gray-500'>Funding Source</p>
+                    <input
+                      placeholder="Funding Source"
+                      name='RecoveryAndEquipmentFurniture.0.fundingSource'
+                      value={formData.RecoveryAndEquipmentFurniture[0]?.fundingSource || ''}
+                      onChange={handleChange}
+                      style={inputStyle}
+                      required
+                    />
+                  </div>
+                  <div className='w-2xl'>
+                    <p className='text-gray-500'>Implementing Agency</p>
+                    <input
+                      placeholder="Implementing Agency"
+                      name='RecoveryAndEquipmentFurniture.0.implementingAgency'
+                      value={formData.RecoveryAndEquipmentFurniture[0]?.implementingAgency || ''}
+                      onChange={handleChange}
+                      style={inputStyle}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className='flex gap-4'>
+                  <div className='w-2xl'>
+                    <p className='text-gray-500'>Tentative Duration (Months)</p>
+                    <input
+                      type="number"
+                      placeholder="Tentative Duration (Months)"
+                      name='RecoveryAndEquipmentFurniture.0.tentativeDurationMonths'
+                      value={formData.RecoveryAndEquipmentFurniture[0]?.tentativeDurationMonths || 0}
+                      onChange={handleChange}
+                      style={inputStyle}
+                      required
+                    />
+                  </div>
+                  <div className='w-2xl'>
+                    <p className='text-gray-500'>Budget</p>
+                    <input
+                      type="number"
+                      placeholder="Budget"
+                      name='RecoveryAndEquipmentFurniture.0.budget'
+                      value={formData.RecoveryAndEquipmentFurniture[0]?.budget || 0}
+                      onChange={handleChange}
+                      style={inputStyle}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className='w-2xl'>
+                  <p className='text-gray-500'>Responsible Officer</p>
+                  <input
+                    placeholder="Responsible Officer"
+                    name='RecoveryAndEquipmentFurniture.0.responsibleOfficer'
+                    value={formData.RecoveryAndEquipmentFurniture[0]?.responsibleOfficer || ''}
+                    onChange={handleChange}
+                    style={inputStyle}
+                    required
+                  />
+                </div>
+              </div>
+    </div>
+  )
+},
+ 
+{
+  id:13,
+  label:"Plan Updation Cycle (Every 6 months or post-incident)",
+  content:(
+    <div className='container'>
+         <h2 style={headingStyle}>Plan Updation Cycle (Every 6 months or post-incident)</h2>
+            <div style={sectionStyle}>
+              <div className="mb-4">
+                <p className="text-gray-500">Version/Date</p>
+                <input
+                  type="date"
+                  placeholder="Version/Date (e.g., 01/01/2025)"
+                  name='PlanUpdationCycle.0.versionDate'
+                  value={formData.PlanUpdationCycle[0]?.versionDate || ''}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  className="text-gray-500"
+                  required
+                />
+              </div>
+
+              <div className='flex gap-4 mb-4'>
+                <div className="flex-1">
+                  <p className="text-gray-500">Update Trigger</p>
+                  <input
+                    placeholder="Update Trigger (e.g., lack of water tanker)"
+                    name='PlanUpdationCycle.0.updateTrigger'
+                    value={formData.PlanUpdationCycle[0]?.updateTrigger || ''}
+                    onChange={handleChange}
+                    style={inputStyle}
+                    required
+                  />
+                </div>
+                <div className="flex-1">
+                  <p className="text-gray-500">Key Changes Made</p>
+                  <input
+                    placeholder="Key Changes Made (e.g., changed water tanker)"
+                    name='PlanUpdationCycle.0.keyChangesMade'
+                    value={formData.PlanUpdationCycle[0]?.keyChangesMade || ''}
+                    onChange={handleChange}
+                    style={inputStyle}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-gray-500">Reviewed By</p>
+                <input
+                  placeholder="Reviewed By (e.g., Police)"
+                  name='PlanUpdationCycle.0.reviewedBy'
+                  value={formData.PlanUpdationCycle[0]?.reviewedBy || ''}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  required
+                />
+              </div>
+
+              <div>
+                <p className="text-gray-500">Next Scheduled Update</p>
+                <input
+                  type="date"
+                  name='PlanUpdationCycle.0.nextScheduledUpdate'
+                  value={formData.PlanUpdationCycle[0]?.nextScheduledUpdate || ''}
+                  onChange={handleChange}
+                  placeholder="Next Scheduled Update (e.g., 08/08/2026)"
+                  style={inputStyle}
+                  className="text-gray-500"
+                  required
+                />
+              </div>
+            </div>
+    </div>
+  )
+},
+ {
+  id:14,
+  label:"",
+  content:(
+    <div className='container'>
+      <h2 style={headingStyle}>Team for Students with Special needs (IF CHILDREN ARE THERE)</h2>
               <div style={sectionStyle}>
                 <label htmlFor="Name">Team member Name</label>
                 <input
@@ -5500,6 +5117,20 @@ const handleBooking = () => {
                   onChange={handleChange}
                   style={inputStyle} required />
               </div>
+    </div>
+  )
+ },
+    {
+      id: 5,
+      // label: 'First Aid Directory',
+      // icon: <Heart className="w-4 h-4" />,
+      content: (
+        <div className='container'>
+          <div className='container'>
+            <section className="mb-8 h-auto">
+             
+             
+              
               <h2 style={headingStyle}>Disaster/ Accident Reporting Format</h2>
               <div style={sectionStyle}>
                 {/* 1. Name of School */}

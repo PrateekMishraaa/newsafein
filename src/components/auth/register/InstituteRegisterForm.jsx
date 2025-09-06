@@ -871,6 +871,7 @@ import * as Yup from "yup";
 import { State, City } from "country-state-city";
 import axios from "axios";
 
+
 // Complete validation schema based on your requirements
 const instituteRegisterSchema = Yup.object({
   email: Yup.string().email("Invalid email format").required("Email Address is required"),
@@ -904,6 +905,7 @@ const instituteRegisterSchema = Yup.object({
 });
 console.log(instituteRegisterSchema)
 export const InstituteRegisterForm = () => {
+  
   const [submitState, setSubmitState] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [states, setStates] = useState([]);
@@ -1091,6 +1093,11 @@ console.log("institution registr value",formik);
     }
   };
 
+
+
+  const handleRedirect=()=>{
+    navigate("/login")
+  }
   // Resend OTP Handler
   const handleResendOtp = async () => {
     try {
@@ -1512,6 +1519,7 @@ console.log("institution registr value",formik);
               
               <button
                 type="submit"
+                onChange={handleRedirect}
                 disabled={submitState || !formik.isValid}
                 className={`btn btn-primary w-100 py-3 ${(submitState || !formik.isValid) ? "bg-secondary border-secondary" : ""}`}
               >
