@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useMemo } from 'react';
 import axios from "axios"
 import { FileText, Users, Map, Heart, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import 'react-tooltip/dist/react-tooltip.css'
@@ -21,7 +21,18 @@ import * as Yup from "yup";
 import 'react-toastify/dist/ReactToastify.css';
 import { DevicesOther, Healing, LocalActivity } from '@mui/icons-material';
 import content from 'pages/static/News/content';
-const SSPFORM = () => {
+import ProgressBar from './ProgressBar.jsx';
+const SSPFORM = ( formSteps) => {
+  const [totalRequiredFields,setTotalRequiredFields] = useState(0)
+  const [totalValidFields,setTotalValidFields] = useState(0)
+  const [overallDetails, setOverallDetails] = useState({
+  validFields: 0,
+  totalRequiredFields: 0
+});
+  const [completedSteps, setCompletedSteps] = useState(new Set());
+ const [overallProgress, setOverallProgress] = useState(0);
+  const [stepProgress, setStepProgress] = useState({});
+  const [steps, setSteps] = useState(new Set());
     const [currentStep, setCurrentStep] = useState(0);
   const [openSection, setOpenSection] = useState(null);
 const [sectionIndexes, setSectionIndexes] = useState({});
@@ -56,310 +67,9 @@ const [errors,setErrors]= useState(true)
   };
 
 console.log("view images",viewImages)
-  // const [formData, setFormData] = useState({
-  //   RolesAndResponsibility: [{
-  //     principalinfo: {
-  //       principalName: "",
-  //       principalPhone: '',
-  //       principalEmail: ''
-  //     },
-  //     vicePrincipalinfo: {
-  //       vicePrincipalName: "",
-  //       vicePrincipalPhone: '',
-  //       vicePrincipalEmail: ''
-  //     },
-  //     seniorCoordinate: {
-  //       seniorCoordinateName: '',
-  //       seniorCoordinatePhone: '',
-  //       seniorCoordinateEmail: ''
-  //     },
-  //     scienceTeachers: {
-  //       scienceTeacherName: '',
-  //       scienceTeacherPhone: '',
-  //       scienceTeacherEmail: ''
-  //     },
-  //     labAsistant: {
-  //       labAsistantName: '',
-  //       labAsistantPhone: '',
-  //       labAsistantEmail: ''
-  //     },
-  //     HeadGirlAndBoy: {
-  //       headBoyAndgirlName: '',
-  //       headBoyAndgirlPhone: '',
-  //       headBoyAndGirlEmail: ''
-  //     },
-  //     CulturalHeadAndLiteraryCaptain: {
-  //       CulturalHeadAndLiteraryCaptainName: '',
-  //       CulturalHeadAndLiteraryCaptainPhone: '',
-  //       CulturalHeadAndLiteraryCaptainEmail: ''
-  //     },
-  //     SchoolSafetyOfficer:{
-  //       SchoolSafetyOfficerName: '',
-  //       SchoolSafetyOfficerPhone: '',
-  //       SchoolSafetyOfficerEmail: ''
-  //     }
-  //   }],
-  //   SafetyAndEmergencyPlans: [{
-  //     mapOrientation: {
-  //       isPresent: false,
-  //       file: '',
-  //       youAreHereIndicator: false,
-  //       compassArrow: false
-  //     },
-  //     buildingLayout: {
-  //       isPresent: false,
-  //       file: ''
-  //     },
-  //     evacuationRoutes: {
-  //       isPresent: false,
-  //       file: '',
-  //       atLeastTwoRoutes: false
-  //     },
-  //     fireExits: {
-  //       isPresent: false,
-  //       file: ''
-  //     },
-  //     fireEquipment: {
-  //       isPresent: false,
-  //       file: '',
-  //       fireExtinguishers: false,
-  //       fireAlarms: false,
-  //       hoseReels: false,
-  //       sandBuckets: false
-  //     },
-  //     assemblyPoint: {
-  //       isPresent: false,
-  //       file: '',
-  //       description: ''
-  //     },
-  //     disabilityRoutes: {
-  //       isPresent: false,
-  //       file: '',
-  //       ramps: false,
-  //       widerExits: false,
-  //       accessibleSignage: false
-  //     },
-  //     emergencyContactInfo: {
-  //       isPresent: false,
-  //       file: '',
-  //       fireStationNumber: '',
-  //       ambulanceNumber: '',
-  //       schoolSafetyOfficerContact: '',
-  //       disasterHelpline: ''
-  //     },
-  //     legend: {
-  //       isPresent: false,
-  //       file: '',
-  //       symbolsAndMeanings: ''
-  //     },
-  //     dateVersion: {
-  //       isPresent: false,
-  //       file: '',
-  //       updatedOn: null
-  //     }
-  //   }],
-  //   FirstAidReferralDirectory: [{
-  //     name: '',
-  //     designation: '',
-  //     phone: '',
-  //     isFirstAidCertified: false,
-  //     locationInSchool: ''
-  //   }],
-  //   LocalHealthEmergencyReferralDirectory: {
-  //     primaryHealthCentre: [{
-  //       facilityName: '',
-  //       phoneNumber: '',
-  //       distanceFromSchool: '',
-  //       is24x7: false,
-  //       remarks: ''
-  //     }],
-  //     governmentHospital: [{
-  //       facilityName: '',
-  //       phoneNumber: '',
-  //       distanceFromSchool: '',
-  //       is24x7: false,
-  //       remarks: ''
-  //     }],
-  //     privateHospital: [{
-  //       facilityName: '',
-  //       phoneNumber: '',
-  //       distanceFromSchool: '',
-  //       is24x7: false,
-  //       remarks: ''
-  //     }],
-  //     fireDepartment: [{
-  //       facilityName: '',
-  //       phoneNumber: '',
-  //       distanceFromSchool: '',
-  //       is24x7: false,
-  //       remarks: ''
-  //     }],
-  //     ambulanceService: [{
-  //       facilityName: '',
-  //       phoneNumber: '',
-  //       distanceFromSchool: '',
-  //       is24x7: false,
-  //       remarks: ''
-  //     }],
-  //     ngoHelpline: [{
-  //       facilityName: '',
-  //       phoneNumber: '',
-  //       distanceFromSchool: '',
-  //       is24x7: false,
-  //       remarks: ''
-  //     }]
-  //   },
-  //   ResourceAndEquipmentLog: [{
-  //     item: '',
-  //     location: '',
-  //     typeSpecification: '',
-  //     quantity: 0,
-  //     lastInspectionDate: null,
-  //     nextDueDate: null,
-  //     condition: '',
-  //     remarks: ''
-  //   }],
-  //   FireSafetyEquipmentInventory: [{
-  //     Name: '',
-  //     Location: '',
-  //     TypeAndSpecification: '',
-  //     Quantity: 0,
-  //     LastInspectionDate: null,
-  //     NextDueDate: '',
-  //     Condition: ''
-  //   }],
-  //    FireDrillLog: [{
-  //     dateOfDrill: "",
-  //     timeOfDrillStart: "",
-  //     timeOfDrillEnd: "",
-  //     typeOfDrill: [],
-  //     participants: {
-  //       students: {
-  //         boys: 0,
-  //         girls: 0
-  //       },
-  //       staff: {
-  //         teaching: 0,
-  //         nonTeaching: 0,
-  //         admin: 0,
-  //         support: 0
-  //       }
-  //     },
-  //     timeTakenToEvacuate: 0,
-  //     issuesEncountered: '',
-  //     disabledAssistedStudentsEvacuated: '',
-  //     comments: '',
-  //     fireSafetyEquipment: {
-  //       alarm: false,
-  //       fireExtinguisher: false,
-  //       megaphone: false,
-  //       fireHose: false,
-  //       sprinklerSystem: false,
-  //       other: false,
-  //       otherDetails: ''
-  //     },
-  //     observationsFromSafetyOfficer: '',
-  //     correctiveActions: '',
-  //     drillConductedBy: '',
-  //     signatureAndDate: {
-  //       name: '',
-  //       date: null
-  //     }
-  //   }],
-  //   RecoveryAndDamagedDestroyedBuilding: [{
-  //     damagedDestroyedBuilding: '',
-  //     recoveryMeasures: '',
-  //     fundingSource: '',
-  //     implementingAgency: '',
-  //     tentativeDurationMonths: 0,
-  //     budget: 0,
-  //     responsibleOfficer: ''
-  //   }],
-  //   RecoveryAndEquipmentFurniture: [{
-  //     damagedDestroyedEquipmentFurniture: '',
-  //     recoveryMeasures: '',
-  //     fundingSource: '',
-  //     implementingAgency: '',
-  //     tentativeDurationMonths: 0,
-  //     budget: 0,
-  //     responsibleOfficer: ''
-  //   }],
-  //   FunctioningOfEducation: [{
-  //     alterateSchoolLocation: '',
-  //     provisionForOnlineEducation: '',
-  //     fundingSourceToMeetExpenditure: '',
-  //     responsibility: ''
-  //   }],
-  //   PlanUpdationCycle: [{
-  //     versionDate: null,
-  //     updateTrigger: '',
-  //     keyChangesMade: '',
-  //     reviewedBy: '',
-  //     nextScheduledUpdate: null
-  //   }],
-  //   FeedBackMechanismCommunityValidation: [{
-  //     FeedbackSource: '',
-  //     DateReceived: null,
-  //     FeedBackSummary: '',
-  //     ActionTaken: '',
-  //     ValidateByCommunity: false
-  //   }],
-  //   PsychologicalRecovery: [{
-  //     noOfStudents: '',
-  //     teacherStaffNeed: '',
-  //     nameOfCounselors: '',
-  //     contactNoOfcounselors: '',
-  //     counselorsAddress: '',
-  //     counselorsResponsibility: ''
-  //   }],
-  //   TeamForStudentsSpecialNeed: [{
-  //     nameOfTeamMember: '',
-  //     memberDesignation: '',
-  //     memberAddress: '',
-  //     memberContactno: '',
-  //     nameOftheStudent: '',
-  //     studentContactNo: '',
-  //     studentAddress: ''
-  //   }],
-  //   DisasterAccidentReporting: [{
-  //     schoolName: '',
-  //     schoolAddress: '',
-  //     contactNumber: '',
-  //     incidentDate: null,
-  //     incidentTime: '',
-  //     disasterType: '',
-  //     totalAffectedPersons: 0,
-  //     deaths: {
-  //       teachingStaff: 0,
-  //       students: 0,
-  //       nonTeachingStaff: 0
-  //     },
-  //     totalInjured: 0,
-  //     lossOfProperty: '',
-  //     responseAgencies: '',
-  //     eventDescription: '',
-  //     responseDescription: '',
-  //     reportedBy: '',
-  //     reportedDate: null,
-  //     status: ''
-  //   }],
-  //   MonthlyQuarterlyReview: [{
-  //     reviewDate: null,
-  //     reviewType: '',
-  //     checklistName: '',
-  //     status: '',
-  //     remarks: '',
-  //     reviewedBy: '',
-  //     nextReviewDate: null
-  //   }]
-  // });
-
-
+ 
    const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-
-   
   const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
@@ -674,32 +384,32 @@ console.log("view images",viewImages)
   });
   console.log(formData)
 
-    const steps = [
-    {
-      id: 0,
-      title: 'Roles & Responsibilities',
-      icon: <Users className="w-4 h-4" />
-    },
-    {
-      id: 1,
-      title: 'Safety & Emergency Plans',
-      icon: <AlertCircle className="w-4 h-4" />
-    },
-    {
-      id:2,
-      title:"First aid And Refferal Directory",
-      icon:<DevicesOther className='w-4 h-4'/>
-    },
-    {
-      id:3,
-      title:"Local Health Emergency Referral Directory",
-      icon:<Healing className='w-4 h-4'/>
-    },{
-      id:4,
-      title:"LocalHealth",
-      icon:<LocalActivity className='w-4 h-4'/>
-    }
-  ];
+  //   const steps = [
+  //   {
+  //     id: 0,
+  //     title: 'Roles & Responsibilities',
+  //     icon: <Users className="w-4 h-4" />
+  //   },
+  //   {
+  //     id: 1,
+  //     title: 'Safety & Emergency Plans',
+  //     icon: <AlertCircle className="w-4 h-4" />
+  //   },
+  //   {
+  //     id:2,
+  //     title:"First aid And Refferal Directory",
+  //     icon:<DevicesOther className='w-4 h-4'/>
+  //   },
+  //   {
+  //     id:3,
+  //     title:"Local Health Emergency Referral Directory",
+  //     icon:<Healing className='w-4 h-4'/>
+  //   },{
+  //     id:4,
+  //     title:"LocalHealth",
+  //     icon:<LocalActivity className='w-4 h-4'/>
+  //   }
+  // ];
 
 
 
@@ -902,15 +612,352 @@ console.log("view images",viewImages)
 };
 
 
+// const validateFieldValue = (value, fieldType = 'text') => {
+//   if (value === undefined || value === null) return false;
+  
+//   switch (fieldType) {
+//     case 'email':
+//       return isValidEmail(value);
+//     case 'phone':
+//       return isValidPhone(value);
+//     case 'number':
+//       return !isNaN(value) && value > 0;
+//     case 'boolean':
+//       return typeof value === 'boolean';
+//     case 'date':
+//       return value instanceof Date || (typeof value === 'string' && value.trim() !== '');
+//     case 'array':
+//       return Array.isArray(value) && value.length > 0;
+//     default:
+//       return typeof value === 'string' ? value.trim() !== '' : Boolean(value);
+//   }
+// };
+
+// const calculateStepCompletion = (stepId) => {
+//   const requiredFields = stepValidations[stepId];
+//   if (!requiredFields || requiredFields.length === 0) {
+//     return { percentage: 100, isComplete: true };
+//   }
+
+//   let validFields = 0;
+//   const totalRequiredFields = requiredFields.length;
+
+//   requiredFields.forEach(fieldPath => {
+//     const value = getNestedValue(formData, fieldPath);
+//     let isValid = false;
+
+//     // Determine field type based on field name for better validation
+//     if (fieldPath.includes('Email')) {
+//       isValid = validateFieldValue(value, 'email');
+//     } else if (fieldPath.includes('Phone') || fieldPath.includes('ContactNo')) {
+//       isValid = validateFieldValue(value, 'phone');
+//     } else if (fieldPath.includes('Date')) {
+//       isValid = validateFieldValue(value, 'date');
+//     } else if (fieldPath.includes('isPresent') || fieldPath.includes('Certified') || fieldPath.includes('24x7')) {
+//       isValid = validateFieldValue(value, 'boolean');
+//     } else if (fieldPath.includes('quantity') || fieldPath.includes('Quantity') || fieldPath.includes('budget') || fieldPath.includes('boys') || fieldPath.includes('girls')) {
+//       isValid = validateFieldValue(value, 'number');
+//     } else if (fieldPath.includes('typeOfDrill')) {
+//       isValid = validateFieldValue(value, 'array');
+//     } else {
+//       isValid = validateFieldValue(value, 'text');
+//     }
+
+//     if (isValid) {
+//       validFields++;
+//     }
+//      const percentage = Math.round((validFields / totalRequiredFields) * 100);
+//   const isComplete = validFields === totalRequiredFields;
+
+//   return { percentage, isComplete, validFields, totalRequiredFields };
+
+//   });}
 
 
+// Using your existing getNestedValue function
+// const getNestedValue = (obj, path) => {
+//   return path.split('.').reduce((current, key) => {
+//     return current?.[key];
+//   }, obj);
+// };
+
+// Helper function to validate field values
+const validateFieldValue = (value, fieldType = 'text') => {
+  if (value === undefined || value === null) return false;
+  
+  switch (fieldType) {
+    case 'email':
+      return isValidEmail(value);
+    case 'phone':
+      return isValidPhone(value);
+    case 'number':
+      return !isNaN(value) && value > 0;
+    case 'boolean':
+      return typeof value === 'boolean';
+    case 'date':
+      return value instanceof Date || (typeof value === 'string' && value.trim() !== '');
+    case 'array':
+      return Array.isArray(value) && value.length > 0;
+    default:
+      return typeof value === 'string' ? value.trim() !== '' : Boolean(value);
+  }
+};
+
+// Updated calculateStepCompletion function
 
 
+const calculateStepCompletion = (stepId) => {
+  const requiredFields = stepValidations[stepId];
+  if (!requiredFields || requiredFields.length === 0) {
+    return { percentage: 100, isComplete: true, validFields: 0, totalRequiredFields: 0 };
+  }
+
+  let validFields = 0;
+  const totalRequiredFields = requiredFields.length;
+
+  requiredFields.forEach(fieldPath => {
+    const value = getNestedValue(formData, fieldPath);
+    let isValid = false;
+
+    // Determine field type based on field name for better validation
+    if (fieldPath.includes('Email')) {
+      isValid = validateFieldValue(value, 'email');
+    } else if (fieldPath.includes('Phone') || fieldPath.includes('ContactNo')) {
+      isValid = validateFieldValue(value, 'phone');
+    } else if (fieldPath.includes('Date')) {
+      isValid = validateFieldValue(value, 'date');
+    } else if (fieldPath.includes('isPresent') || fieldPath.includes('Certified') || fieldPath.includes('24x7')) {
+      isValid = validateFieldValue(value, 'boolean');
+    } else if (fieldPath.includes('quantity') || fieldPath.includes('Quantity') || fieldPath.includes('budget') || fieldPath.includes('boys') || fieldPath.includes('girls')) {
+      isValid = validateFieldValue(value, 'number');
+    } else if (fieldPath.includes('typeOfDrill')) {
+      isValid = validateFieldValue(value, 'array');
+    } else {
+      isValid = validateFieldValue(value, 'text');
+    }
+
+    if (isValid) {
+      validFields++;
+    }
+  });
+
+  const percentage = Math.round((validFields / totalRequiredFields) * 100);
+  const isComplete = validFields === totalRequiredFields;
+
+  return { percentage, isComplete, validFields, totalRequiredFields };
+};
+
+const calculateOverallProgress = () => {
+  // Guard clause: check if stepValidations exists and has valid structure
+  if (!stepValidations || typeof stepValidations !== 'object') {
+    return {
+      percentage: 0,
+      completedSteps: 0,
+      totalSteps: 0,
+      validFields: 0,
+      totalRequiredFields: 0
+    };
+  }
+
+  const stepIds = Object.keys(stepValidations);
+  
+  // If no steps exist, return 0
+  if (stepIds.length === 0) {
+    return {
+      percentage: 0,
+      completedSteps: 0,
+      totalSteps: 0,
+      validFields: 0,
+      totalRequiredFields: 0
+    };
+  }
+
+  let totalValidFields = 0;
+  let totalRequiredFields = 0;
+  let completedSteps = 0;
+
+  stepIds.forEach(stepId => {
+    // Ensure stepId is properly converted to number
+    const numericStepId = parseInt(stepId, 10);
+    
+    // Skip invalid step IDs
+    if (isNaN(numericStepId)) {
+      console.warn(`Invalid step ID: ${stepId}`);
+      return;
+    }
+
+    const stepCompletion = calculateStepCompletion(numericStepId);
+    
+    // More robust handling of stepCompletion result
+    if (stepCompletion && typeof stepCompletion === 'object') {
+      // Ensure we're working with valid numbers
+      const validFields = Number(stepCompletion.validFields) || 0;
+      const requiredFields = Number(stepCompletion.totalRequiredFields) || 0;
+      
+      totalValidFields += validFields;
+      totalRequiredFields += requiredFields;
+      
+      // Check if step is complete (handle boolean and percentage-based completion)
+      if (stepCompletion.isComplete === true || 
+          (stepCompletion.percentage !== undefined && stepCompletion.percentage >= 100)) {
+        completedSteps++;
+      }
+    }
+  });
+
+  // Calculate percentage with proper bounds checking
+  let overallPercentage = 0;
+  if (totalRequiredFields > 0) {
+    overallPercentage = Math.round((totalValidFields / totalRequiredFields) * 100);
+    // Ensure percentage stays within 0-100 bounds
+    overallPercentage = Math.max(0, Math.min(100, overallPercentage));
+  }
+
+  return {
+    percentage: overallPercentage,
+    completedSteps,
+    totalSteps: stepIds.length,
+    validFields: totalValidFields,
+    totalRequiredFields
+  };
+};
+
+
+useEffect(() => {
+  // Early return if no stepValidations
+  if (!stepValidations || typeof stepValidations !== 'object') {
+    setStepProgress({});
+    setCompletedSteps(new Set());
+    setOverallProgress(0);
+    setOverallDetails({
+      validFields: 0,
+      totalRequiredFields: 0
+    });
+    return;
+  }
+
+  const newStepProgress = {};
+  const newCompletedSteps = new Set();
+
+  Object.keys(stepValidations).forEach(stepId => {
+    // Convert to number and validate
+    const numericStepId = parseInt(stepId, 10);
+    
+    if (isNaN(numericStepId)) {
+      console.warn(`Invalid step ID: ${stepId}`);
+      return; // Skip this iteration
+    }
+
+    try {
+      const stepCompletion = calculateStepCompletion(numericStepId);
+      
+      // Validate stepCompletion result
+      if (!stepCompletion || typeof stepCompletion !== 'object') {
+        console.warn(`Invalid step completion result for step ${stepId}`);
+        newStepProgress[stepId] = 0; // Default to 0% if calculation fails
+        return;
+      }
+
+      // Ensure percentage is a valid number
+      const percentage = Number(stepCompletion.percentage) || 0;
+      newStepProgress[stepId] = Math.max(0, Math.min(100, percentage)); // Clamp between 0-100
+
+      // Check completion status
+      if (stepCompletion.isComplete === true) {
+        newCompletedSteps.add(numericStepId);
+      }
+    } catch (error) {
+      console.error(`Error calculating completion for step ${stepId}:`, error);
+      newStepProgress[stepId] = 0; // Default to 0% on error
+    }
+  });
+
+  // Calculate overall progress
+  let overall;
+  try {
+    overall = calculateOverallProgress();
+  } catch (error) {
+    console.error('Error calculating overall progress:', error);
+    overall = {
+      percentage: 0,
+      validFields: 0,
+      totalRequiredFields: 0
+    };
+  }
+
+  // Update state - batch these together to avoid multiple re-renders
+  setStepProgress(newStepProgress);
+  console.log("Set step progress:", newStepProgress);
+  
+  setCompletedSteps(newCompletedSteps);
+  console.log("Set completed steps:", newCompletedSteps);
+  
+  // Fix: Pass the value, not the setter function
+  setOverallProgress(overall.percentage);
+  console.log("Set overall progress:", overall.percentage);
+  
+  setOverallDetails({
+    validFields: overall.validFields || 0,
+    totalRequiredFields: overall.totalRequiredFields || 0
+  });
+  console.log("Set overall details:", {
+    validFields: overall.validFields || 0,
+    totalRequiredFields: overall.totalRequiredFields || 0
+  });
+
+}, [formData]); 
+
+// Consider adding other dependencies if needed
+// Calculate overall progress across all steps
+
+
+ let overallPercentage = 0;
+  if (totalRequiredFields > 0) {
+    overallPercentage = Math.round((totalValidFields / totalRequiredFields) * 100);
+    // Ensure percentage stays within 0-100 bounds
+    overallPercentage = Math.max(0, Math.min(100, overallPercentage));
+  }
+  console.log("overall percentage",overallPercentage)
   const getNestedValue = (obj, path) => {
     return path.split('.').reduce((current, key) => {
       return current?.[key];
     }, obj);
   };
+
+
+  const getStepStatus = (stepId) => {
+  const completion = calculateStepCompletion(stepId);
+  return {
+    percentage: completion.percentage,
+    isComplete: completion.isComplete,
+    status: completion.isComplete ? 'complete' : 
+            completion.percentage > 0 ? 'in-progress' : 'not-started',
+    validFields: completion.validFields,
+    totalFields: completion.totalRequiredFields
+  };
+};
+
+
+const updateProgress = () => {
+  const newStepProgress = {};
+  const newCompletedSteps = new Set();
+
+  Object.keys(stepValidations).forEach(stepId => {
+    const stepCompletion = calculateStepCompletion(parseInt(stepId));
+    console.log("step completion",stepCompletion)
+    newStepProgress[stepId] = stepCompletion.percentage;
+    
+    if (stepCompletion.isComplete) {
+      newCompletedSteps.add(parseInt(stepId));
+    }
+  });
+
+  const overall = calculateOverallProgress();
+
+  setStepProgress(newStepProgress);
+  setCompletedSteps(newCompletedSteps);
+  setOverallProgress(overall.percentage);
+};
 
   const setNestedValue = (obj, path, value) => {
     const keys = path.split('.');
@@ -954,21 +1001,6 @@ console.log("view images",viewImages)
     setErrors(newErrors);
     return isValid;
   };
-
-
-
-  
-  const handleNext = () => {
-    if (validateCurrentStep()) {
-      setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
-    }
-  };
-
-  const handlePrevious = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 0));
-  };
-
-
 
     const isStepComplete = (stepIndex) => {
     const requiredFields = stepValidations[stepIndex] || [];
@@ -1161,7 +1193,8 @@ const tooltipInfo = {
 const renderImageViewer = (section) => {
   return currentSection === section &&
     viewImages[section]?.length > 0 ? (
-    <div className="mt-4 border rounded-lg p-4 bg-gray-50">
+ <div className='flex justify-between' style={{display:'flex'}}>
+     <div className="mt-4 border rounded-lg p-4 bg-gray-50 flex justify-between">
       <h3 className="text-md font-semibold mb-2">
         {section.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())} Images
       </h3>
@@ -1175,7 +1208,8 @@ const renderImageViewer = (section) => {
         {/* Navigation */}
        
           {viewImages[section].length > 1 && (
-          <div className="flex justify-between mt-3">
+         <div className='flex justify-between' style={{display:'flex'}}>
+           <div className="flex justify-between mt-3" style={{display:'flex'}}>
             <button
               onClick={() =>
                 setCurrentIndex((prev) =>
@@ -1200,10 +1234,12 @@ const renderImageViewer = (section) => {
               Next
             </button>
           </div>
+         </div>
         )}
        
       </div>
     </div>
+ </div>
   ) : null;
 };
 
@@ -3121,7 +3157,8 @@ const handleBooking = () => {
 
         {/* Navigation */}
         {viewImages["legend"].length > 1 && (
-          <div className="flex justify-between mt-3">
+          <div className='flex justify-between'>
+            <div className="flex justify-between mt-3 border-2">
             <button
               onClick={() => handleNavigation("legend", "prev")}
               className="px-3 py-1 bg-gray-700 text-white rounded-md hover:bg-gray-800"
@@ -3137,6 +3174,7 @@ const handleBooking = () => {
             >
               Next
             </button>
+          </div>
           </div>
         )}
       </div>
@@ -5121,7 +5159,7 @@ const handleBooking = () => {
   )
  },
     {
-      id: 5,
+      id: 15,
       // label: 'First Aid Directory',
       // icon: <Heart className="w-4 h-4" />,
       content: (
@@ -5387,7 +5425,7 @@ const handleBooking = () => {
       )
     },
     {
-      id: 6,
+      id: 16,
       // label: 'First Aid Directory',
       // icon: <Heart className="w-4 h-4" />,
 
@@ -5506,94 +5544,172 @@ const handleBooking = () => {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white">
-      {/* Tab Navigation */}
-      {/* <div className="border-b border-gray-200 mb-8 w-full border-2">
-    <nav className="flex justify-center space-x-8">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => setActiveTab(tab.id)}
-          className={`flex items-center gap-2 py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
-            activeTab === tab.id
-              ? 'border-green-500 text-green-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-          }`}
-        >
-          {tab.icon}
-          {tab.label}
-        </button>
-      ))}
-    </nav>
-  </div> */}
 
-      {/* Tab Content */}
-      <div className="min-h-screen  w-screen ">
-        <div className="w-full p-2" style={{ padding: "46px ", width: "100%" }}>{tabs[activeTab].content}</div>
-      </div>
-
-      {/* Navigation Buttons */}
-      <div className="flex flex-col items-center mt-8 pt-6 border-t border-gray-200">
-        {/* Progress Dots */}
-        <div className="flex items-center gap-3 mb-6">
-          {/* {tabs.map((_, index) => (
-      <div
-        key={index}
-        className={`w-3 h-3 rounded-full transition-colors ${
-          index === activeTab ? 'bg-green-500 scale-110' : 'bg-gray-300'
+    <>
+   <div className='container'>
+  {/* Updated ProgressBar with overallProgress */}
+  <ProgressBar 
+    completed={overallProgress} 
+    showLabel={true}
+  />
+  
+  <div className="max-w-6xl mx-auto p-6 bg-white">
+    
+    {/* Step Progress Bar with Dynamic Colors */}
+    <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+      <div 
+        className={`h-2 rounded-full transition-all duration-500 ${
+          stepProgress[activeTab] === 100 ? '#ea580c' : 
+          stepProgress[activeTab] >= 75 ? '#ea580c' :
+          stepProgress[activeTab] >= 50 ? '#ea580c' :
+          stepProgress[activeTab] >= 25 ? '#ea580c' :
+          stepProgress[activeTab] > 0 ? '#ea580c' : '#ea580c'
         }`}
+        style={{ width: `${stepProgress[activeTab] || 0}%` }}
       />
-    ))} */}
-          {/* Navigation Buttons */}
-        <div className="flex justify-between items-center p-4" style={{ gap: "10px", marginLeft: "100px" }}>
- {/* Previous Button */}
- <button
-   onClick={() => setActiveTab(Math.max(0, activeTab - 1))}
-   disabled={activeTab === 0}
-   style={{
-     height: "40px",
-     width: "100px",
-     borderRadius: "10px",
-     backgroundColor: activeTab === 0 ? "#9CA3AF" : "#f27f22",
-     color: "white",
-     border: "2px solid",
-     borderColor: activeTab === 0 ? "#6B7280" : "#ea580c",
-     cursor: activeTab === 0 ? "not-allowed" : "pointer",
-     transition: "all 0.3s ease",
-     fontWeight: "500",
-     marginLeft: "20px"
-   }}
- >
-   Previous
- </button>
-
- {/* Next Button */}
- <button
-   onClick={() => setActiveTab(Math.min(tabs.length - 1, activeTab + 1))}
-   disabled={activeTab === tabs.length - 1}
-   style={{
-     height: "40px",
-     width: "100px",
-     borderRadius: "10px",
-     backgroundColor: activeTab === tabs.length - 1 ? "#9CA3AF" : "#dd9306",
-     color: "white",
-     border: "2px solid",
-     borderColor: activeTab === tabs.length - 1 ? "#6B7280" : "#b45309",
-     cursor: activeTab === tabs.length - 1 ? "not-allowed" : "pointer",
-     transition: "all 0.3s ease",
-     fontWeight: "500",
-     marginLeft: "20px"
-   }}
- >
-   {activeTab === tabs.length - 1 ? 'Finish' : 'Next'}
- </button>
-</div>
-
-        </div>
-
-      </div>
-
     </div>
+    
+    {/* Overall Progress Summary with Dynamic Colors */}
+    {/* <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-sm font-medium text-gray-700">Overall Progress:</span>
+        <span className="text-sm font-bold text-gray-800">{overallProgress}%</span>
+      </div>
+      <div className="w-full bg-gray-200 rounded-full h-3">
+        <div 
+          className={`h-3 rounded-full transition-all duration-700 ${
+            overallProgress === 100 ? '#ea580c' : 
+            overallProgress >= 75 ? '#ea580c' :
+            overallProgress >= 50 ? '#ea580c' :
+            overallProgress >= 25 ? '#ea580c' :
+            overallProgress > 0 ? '#ea580c' : '#ea580c'
+          }`}
+          style={{ width: `${overallProgress}%` }}
+        />
+      </div>
+    </div> */}
+
+    {/* Tab Content */}
+    <div className="min-h-screen w-screen">
+      <div className="w-full p-2" style={{ padding: "46px", width: "100%" }}>
+        {tabs[activeTab].content}
+      </div>
+    </div>
+
+    {/* Navigation Buttons */}
+    <div className="flex flex-col items-center mt-8 pt-6 border-t border-gray-200">
+      
+      {/* Navigation Buttons - Fixed Flex Layout */}
+      <div className="flex justify-between items-start gap-4 w-full max-w-md">
+        
+        {/* Previous Button */}
+        <button
+          onClick={() => setActiveTab(Math.max(0, activeTab - 1))}
+          disabled={activeTab === 0}
+          style={{
+            height: "40px",
+            width: "100px",
+            borderRadius: "10px",
+            backgroundColor: activeTab === 0 ? "#9CA3AF" : "#f27f22",
+            color: "white",
+            border: "2px solid",
+            borderColor: activeTab === 0 ? "#6B7280" : "#ea580c",
+            cursor: activeTab === 0 ? "not-allowed" : "pointer",
+            transition: "all 0.3s ease",
+            fontWeight: "500"
+          }}
+        >
+          Previous
+        </button>
+
+        {/* Next/Submit Button with validation warning */}
+        <div className="flex flex-col items-center">
+          {(() => {
+            const currentStepStatus = getStepStatus(activeTab);
+            const isLastStep = activeTab === Object.keys(stepValidations).length - 1;
+            const canProceed = currentStepStatus.percentage === 100;
+            
+            return (
+              <>
+                {!canProceed && (
+                  <div className="text-xs text-orange-600 mb-2 text-center max-w-48">
+                    Complete all required fields to proceed
+                  </div>
+                )}
+                
+                <button
+                  onClick={() => {
+                    if (isLastStep) {
+                      if (overallProgress === 100) {
+                        console.log("Form is complete! Ready to submit.");
+                      } else {
+                        alert(`Form is ${overallProgress}% complete. Please complete all required fields before submitting.`);
+                      }
+                    } else {
+                      setActiveTab(Math.min(Object.keys(stepValidations).length - 1, activeTab + 1));
+                    }
+                  }}
+                  disabled={activeTab === Object.keys(stepValidations).length - 1 && overallProgress < 100}
+                  style={{
+                    height: "40px",
+                    width: "100px",
+                    borderRadius: "10px",
+                    backgroundColor: 
+                      (isLastStep && overallProgress < 100) ? "#9CA3AF" :
+                      isLastStep ? "#10B981" : "#dd9306",
+                    color: "white",
+                    border: "2px solid",
+                    borderColor: 
+                      (isLastStep && overallProgress < 100) ? "#6B7280" :
+                      isLastStep ? "#059669" : "#b45309",
+                    cursor: 
+                      (isLastStep && overallProgress < 100) ? "not-allowed" : "pointer",
+                    transition: "all 0.3s ease",
+                    fontWeight: "500"
+                  }}
+                >
+                  {isLastStep ? 'Submit' : 'Next'}
+                </button>
+              </>
+            );
+          })()}
+        </div>
+      </div>
+      
+      {/* Completion Status with Dynamic Color */}
+      {overallProgress === 100 && (
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-center">
+          <div className="text-green-800 font-medium">
+            🎉 All steps completed! Ready to submit your form.
+          </div>
+        </div>
+      )}
+      
+      {/* Progress Status Indicator */}
+      {overallProgress > 0 && overallProgress < 100 && (
+        <div className={`mt-4 p-3 rounded-lg text-center border ${
+          overallProgress >= 75 ? 'bg-blue-50 border-blue-200' :
+          overallProgress >= 50 ? 'bg-yellow-50 border-yellow-200' :
+          overallProgress >= 25 ? 'bg-orange-50 border-orange-200' :
+          'bg-red-50 border-red-200'
+        }`}>
+          <div className={`font-medium ${
+            overallProgress >= 75 ? 'text-blue-800' :
+            overallProgress >= 50 ? 'text-yellow-800' :
+            overallProgress >= 25 ? 'text-orange-800' :
+            'text-red-800'
+          }`}>
+            {overallProgress >= 75 ? '📊 Great progress! Almost there!' :
+            overallProgress >= 50 ? '⚡ Halfway there! Keep going!' :
+            overallProgress >= 25 ? '🎯 Good start! Continue filling out the form.' :
+            '📝 Just getting started. Please complete the required fields.'}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+    </>
 
   );
 };

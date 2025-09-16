@@ -318,7 +318,7 @@ const useRoutes = (props) => {
     { path: "*", component: <Error /> },
     { path: "/certified-Teacher", component: <CertifiedTeacherDetails /> },
     { path: "/uncertified-Teacher", component: <UncertifiedTeacherDetails /> },
-      // { path: "/ssp-form", component: <SSPFORM /> },
+      { path: "/ssp-form", component: <SSPFORM /> },
     { path: "/All-Teacher", component: <TotalTeacherIn_Institute /> },
   ];
 
